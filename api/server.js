@@ -9,6 +9,9 @@ const userController = require('../controllers/userController')
 const mailController = require('../controllers/mailController')
 const authController = require('../controllers/authController')
 const db = require('../config/dbConfig')
+const multer = require('multer');
+
+
 
 const app = express()
 const port = 9000
@@ -158,6 +161,34 @@ app.get('/logout', (req, res) => {
     res.json({ message: 'Logged out!' })
   })
 })
+// Configuración de multer para gestionar la carga de archivos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Directorio donde se guardarán los archivos
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Renombrar archivos con la fecha actual
+  }
+});
+
+const upload = multer({ storage });
+
+// Ruta POST para manejar la solicitud de publicación de servicios
+app.post('/api/services', upload.single('image'), (req, res) => {
+  const { availableDates, country, price, section } = req.body;
+  const image = req.file.filename;
+
+  // Insertar los datos en la base de datos utilizando la conexión configurada en dbConfig.js
+  const sql = 'INSERT INTO servicios (imagen, fechas_disponibles, pais, precio, seccion) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [image, availableDates, country, price, section], (err, result) => {
+    if (err) {
+      console.error('Error inserting service into database:', err);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+    console.log('Servicio añadido a la base de datos');
+    res.json({ message: 'Servicio publicado correctamente' });
+  });
+});
 
 app.listen(port, () => {
   console.log(`App is running on PORT: ${port}.`)
