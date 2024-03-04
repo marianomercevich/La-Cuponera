@@ -9,10 +9,8 @@ const userController = require('../controllers/userController')
 const mailController = require('../controllers/mailController')
 const authController = require('../controllers/authController')
 const db = require('../config/dbConfig')
-const multer = require('multer');
-
-
-
+const multer = require("multer")
+const path = require('path');
 const app = express()
 const port = 9000
 
@@ -161,35 +159,101 @@ app.get('/logout', (req, res) => {
     res.json({ message: 'Logged out!' })
   })
 })
-// Configuración de multer para gestionar la carga de archivos
+
+
+// Configuración de multer para el almacenamiento de archivos
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Directorio donde se guardarán los archivos
+  destination: function(req, file, cb) {
+    cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname); // Renombrar archivos con la fecha actual
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Usa path.extname para obtener la extensión del archivo
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
+// Endpoint POST para recibir la imagen y otros datos y almacenarlos en la base de datos
+app.post('/imagen', upload.single('img'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No se ha proporcionado ninguna imagen' });
+  }
 
-// Ruta POST para manejar la solicitud de publicación de servicios
-app.post('/api/services', upload.single('image'), (req, res) => {
-  const { availableDates, country, price, section } = req.body;
-  const image = req.file.filename;
+  const { titulo, descripcion, price } = req.body;
+  const imgPath = req.file.path;
 
-  // Insertar los datos en la base de datos utilizando la conexión configurada en dbConfig.js
-  const sql = 'INSERT INTO servicios (imagen, fechas_disponibles, pais, precio, seccion) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [image, availableDates, country, price, section], (err, result) => {
+  const sql = 'INSERT INTO productos (titulo, img, descripcion, price) VALUES (?, ?, ?, ?)';
+  db.query(sql, [titulo, imgPath, descripcion, price], (err, result) => {
     if (err) {
-      console.error('Error inserting service into database:', err);
+      console.error('Error al insertar el producto:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
     }
-    console.log('Servicio añadido a la base de datos');
-    res.json({ message: 'Servicio publicado correctamente' });
+    console.log('Producto insertado correctamente');
+    res.status(200).json({ message: 'Producto insertado correctamente' });
   });
 });
 
+// Endpoint GET para obtener los datos almacenados y enviarlos al cliente
+app.get('/productos', (req, res) => {
+  const sql = 'SELECT * FROM productos';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error al obtener los productos:', err);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
+// Servir archivos estáticos desde la carpeta de 'uploads'
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "default-src 'self'");
+  next();
+});
+
+app.put('/productos/:id', upload.single('newImage'), (req, res) => {
+  const productId = req.params.id;
+  const { titulo, descripcion, price } = req.body;
+  const newImage = req.file;
+
+  // Verificar la existencia del producto
+  const sqlCheckProduct = 'SELECT * FROM productos WHERE id = ?';
+  db.query(sqlCheckProduct, [productId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error('Error al verificar el producto:', checkErr);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+    if (checkResult.length === 0) {
+      return res.status(404).json({ error: 'El producto no fue encontrado' });
+    }
+
+    // Realizar la actualización en la base de datos
+    let sqlUpdateProduct;
+    let paramsToUpdate;
+
+    if (newImage) {
+      // Si se proporciona una nueva imagen, actualizarla junto con otros datos
+      sqlUpdateProduct = 'UPDATE productos SET titulo = ?, descripcion = ?, price = ?, img = ? WHERE id = ?';
+      paramsToUpdate = [titulo, descripcion, price, newImage.path, productId];
+    } else {
+      // Si no se proporciona una nueva imagen, mantener la imagen existente y actualizar otros datos
+      sqlUpdateProduct = 'UPDATE productos SET titulo = ?, descripcion = ?, price = ? WHERE id = ?';
+      paramsToUpdate = [titulo, descripcion, price, productId];
+    }
+
+    db.query(sqlUpdateProduct, paramsToUpdate, (updateErr, updateResult) => {    
+      if (updateErr) {
+        console.error('Error al editar el producto:', updateErr);
+        return res.status(500).json({ error: 'Error interno del servidor' });
+      }
+      console.log('Producto editado correctamente');
+      res.status(200).json({ message: 'Producto editado correctamente' });
+    });
+  });
+});
+
+// Iniciar el servidor
 app.listen(port, () => {
-  console.log(`App is running on PORT: ${port}.`)
-})
+  console.log(`Servidor escuchando en http://localhost:${port}`);
+});
