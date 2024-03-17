@@ -1,94 +1,120 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const speakeasy = require('speakeasy')
-const uuid = require('uuid')
-const cors = require('cors')
-const session = require('express-session')
-const MySQLStore = require('express-mysql-session')(session)
+const express = require('express');
+const bodyParser = require('body-parser');
+const speakeasy = require('speakeasy');
+const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const jwt = require('jsonwebtoken');
-const db = require('../config/dbConfig')
-const multer = require("multer")
+const db = require('../config/dbConfig');
+const multer = require("multer");
 const path = require('path');
-const bcrypt = require('bcrypt');
 const app = express()
 const port = 9000
+const crypto = require('crypto');
+
 
 app.use(cors()) // Habilita el middleware de CORS
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
-
+app.use(bodyParser.urlencoded({ extended: true }));
+const secretKey = '07902df9221790375c6f5a1fa8c85c3a9d5915fe29999ad85443800c1138f259';
+const sessionSecretKey = crypto.randomBytes(64).toString('hex');
 const sessionStore = new MySQLStore({
-  createDatabaseTable: true,
-  expiration: 100000,
   clearExpired: true,
+  checkExpirationInterval: 900000, // Tiempo de intervalo en milisegundos (15 minutos)
+  expiration: 86400000, // Duración de la sesión en milisegundos (1 día)
+  createDatabaseTable: true,
+  connectionLimit: 1,
   schema: {
-    tableName: 'sessions'
+    tableName: 'sessions',
+    columnNames: {
+      session_id: 'session_id',
+      expires: 'expires',
+      data: 'data'
+    }
   }
-}, db)
+}, db); // Pasa la conexión de base de datos aquí
 
 app.use(session({
-  key: 'Api2Token',
-  secret: 'secret',
+  secret: sessionSecretKey,
+  store: sessionStore,
   resave: false,
-  saveUninitialized: true,
-  store: sessionStore
-}))
-
-// Punto de acceso para el registro de usuario
+  saveUninitialized: false
+}));
+// Endpoint de registro de usuario
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
 
-  const sql = 'INSERT INTO users (email, password) VALUES (?, ?)';
-  db.query(sql, [email, hashedPassword], (err, result) => {
-    if (err) {
-      console.error('Error al registrar usuario:', err);
-      return res.status(500).json({ error: 'Error al registrar usuario' });
+  try {
+    // Verificar si el correo electrónico ya existe en la base de datos
+    const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
     }
-    console.log('Usuario registrado correctamente');
-    res.status(200).json({ message: 'Usuario registrado correctamente' });
-  });
+
+    // Generar un ID único para el nuevo usuario
+    const id = uuidv4();
+
+    // Insertar el usuario en la base de datos con el ID único generado
+    await db.query('INSERT INTO users (id, email, password) VALUES (?, ?, ?)', [id, email, password]);
+    
+    res.json({ message: 'Usuario registrado exitosamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al registrar el usuario' });
+  }
 });
 
+
+// Endpoint de inicio de sesión
 // Endpoint de inicio de sesión
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const sql = 'SELECT * FROM users WHERE email = ?';
-  db.query(sql, [email], async (err, result) => {
-    if (err) {
-      console.error('Error al buscar usuario:', err);
-      return res.status(500).json({ error: 'Error al iniciar sesión' });
-    }
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
+  try {
+    // Buscar el usuario en la base de datos
+    const [results] = await db.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
 
-    const user = result[0];
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Credenciales incorrectas' });
+    if (results.length === 1) {
+      // Generar un token
+      const token = jwt.sign({ userId: results[0].id }, secretKey);
+      res.json({ token });
+    } else {
+      res.status(401).json({ message: 'Credenciales inválidas' });
     }
-
-    const token = jwt.sign({ email: user.email }, 'secret_key', { expiresIn: '1h' });
-    res.status(200).json({ token });
-  });
+  } catch (error) {
+    console.error('Error al buscar el usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
 });
 
-// Endpoint para obtener token
-app.get('/token', (req, res) => {
-  const token = req.headers.authorization;
+
+// Endpoint protegido
+app.get('/recurso-protegido', verifyToken, (req, res) => {
+  res.json({ message: 'Bienvenido, usuario autenticado' });
+});
+
+
+// Middleware para verificar el token en las solicitudes protegidas
+async function verifyToken(req, res, next) {
+  // Obtén el token del encabezado Authorization
+  const token = req.headers['authorization'];
+
   if (!token) {
-    return res.status(401).json({ error: 'Token no proporcionado' });
+    return res.status(401).json({ message: 'Token no proporcionado' });
   }
 
-  jwt.verify(token, 'secret_key', (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ error: 'Token inválido' });
-    }
-    res.status(200).json({ email: decoded.email });
-  });
-});
+  try {
+    // Verifica el token
+    const decoded = jwt.verify(token, secretKey);
+    req.userId = decoded.userId;
+
+    // Pasar al siguiente middleware
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: 'Token inválido' });
+  }
+}
 
 app.get('/', (req, res) => {
   const email = req.session.userEmail
@@ -99,20 +125,14 @@ app.get('/', (req, res) => {
   }
 })
 
-// Elimina la sesion creada para el usuario
 
 // Endpoint de logout
-// Endpoint de logout
 app.post('/logout', (req, res) => {
-  // Destruye la sesión del usuario
-  req.session.destroy(err => {
-    if (err) {
-      console.error('Error al cerrar sesión:', err);
-      return res.status(500).json({ error: 'Error al cerrar sesión' });
-    }
-    console.log('Sesión cerrada correctamente');
-    res.status(200).json({ message: 'Sesión cerrada correctamente' });
-  });
+  // Eliminar el token de sesión del almacenamiento local
+  localStorage.removeItem('token');
+  
+  // Redirigir al usuario a la página de inicio de sesión u otra página
+  res.json({ message: 'Sesión cerrada exitosamente' });
 });
 
 
@@ -168,49 +188,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.put('/blog/:id', upload.single('newImage'), (req, res) => {
-  const productId = req.params.id;
-  const { titulo, descripcion, Subtitulo } = req.body;
-  const newImage = req.file;
-
-  // Verificar la existencia del blog
-  const sqlCheckProduct = 'SELECT * FROM blog WHERE id = ?';
-  db.query(sqlCheckProduct, [productId], (checkErr, checkResult) => {
-    if (checkErr) {
-      console.error('Error al verificar el blog:', checkErr);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    if (checkResult.length === 0) {
-      return res.status(404).json({ error: 'El blog no fue encontrado' });
-    }
-
-    // Realizar la actualización en la base de datos
-    let sqlUpdateProduct;
-    let paramsToUpdate;
-
-    if (newImage) {
-      // Si se proporciona una nueva imagen, actualizarla junto con otros datos
-      sqlUpdateProduct = 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ?, img = ? WHERE id = ?';
-      paramsToUpdate = [titulo, descripcion, Subtitulo, newImage.path, productId];
-    } else {
-      // Si no se proporciona una nueva imagen, mantener la imagen existente y actualizar otros datos
-      sqlUpdateProduct = 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ? WHERE id = ?';
-      paramsToUpdate = [titulo, descripcion, Subtitulo, productId];
-    }
-
-    db.query(sqlUpdateProduct, paramsToUpdate, (updateErr, updateResult) => {    
-      if (updateErr) {
-        console.error('Error al editar el blog:', updateErr);
-        return res.status(500).json({ error: 'Error interno del servidor' });
-      }
-      console.log('blog editado correctamente');
-      res.status(200).json({ message: 'blog editado correctamente' });
-    });
-  });
-});
-
-
-
 //Price-Hotel.jsx
 // Endpoint POST para agregar una entrada
 app.post('/PriceHotel', (req, res) => {
@@ -240,24 +217,6 @@ app.get('/PriceHotel', (req, res) => {
     } else {
       res.status(200).json(results);
     }
-  });
-});
-// Endpoint PUT para actualizar una entrada en PriceHotel
-app.put('/PriceHotel/:id', (req, res) => {
-  const entryId = req.params.id;
-  const { priceDay, stars, reviews, cantNights, serviceCharge } = req.body;
-
-  const Total = priceDay * cantNights;
-  const TotalFull = Total + serviceCharge;
-
-  const sql = 'UPDATE priceHotel SET priceDay = ?, stars = ?, reviews = ?, cantNights = ?, serviceCharge = ?, Total = ?, TotalFull = ? WHERE id = ?';
-  db.query(sql, [priceDay, stars, reviews, cantNights, serviceCharge, Total, TotalFull, entryId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar los datos:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Datos actualizados correctamente');
-    res.status(200).json({ message: 'Datos actualizados correctamente' });
   });
 });
 
@@ -290,24 +249,6 @@ app.get('/roomRates', (req, res) => {
   });
 });
 
-// Endpoint PUT para actualizar tarifas de habitación
-app.put('/roomRates/:id', (req, res) => {
-  const roomId = req.params.id;
-  const { minNights, maxNights, priceMonThu, priceFriSun, DescMonth } = req.body;
-
-  const sql = 'UPDATE roomRates SET minNights = ?, maxNights = ?, priceMonThu = ?, priceFriSun = ?, DescMonth = ? WHERE id = ?';
-  db.query(sql, [minNights, maxNights, priceMonThu, priceFriSun, DescMonth, roomId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar las tarifas de habitación:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Tarifas de habitación actualizadas correctamente');
-    res.status(200).json({ message: 'Tarifas de habitación actualizadas correctamente' });
-  });
-});
-
-
-
 //Titulo.Hotel.jsx
 // Endpoint POST para agregar información del hotel
 app.post('/tituloHotel', (req, res) => {
@@ -335,22 +276,6 @@ app.get('/tituloHotel', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información del hotel
-app.put('/tituloHotel/:id', (req, res) => {
-  const hotelId = req.params.id;
-  const { Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths } = req.body;
-
-  const sql = 'UPDATE tituloHotel SET Title = ?, stars = ?, ubicacion = ?, reviews = ?, NombreProp = ?, cantPerson = ?, cantBeds = ?, cantBaths = ? WHERE id = ?';
-  db.query(sql, [Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths, hotelId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar la información del hotel:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Información del hotel actualizada correctamente');
-    res.status(200).json({ message: 'Información del hotel actualizada correctamente' });
-  });
-});
-
 
 //Price-Car.jsx
 // Endpoint POST para agregar información de precios de coches
@@ -381,24 +306,6 @@ app.get('/priceCar', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información de precios de coches
-app.put('/priceCar/:id', (req, res) => {
-  const carId = req.params.id;
-  const { pricDay, stars, reviews, cantDays } = req.body;
-
-  const Total = pricDay * cantDays;
-
-  const sql = 'UPDATE priceCar SET pricDay = ?, stars = ?, reviews = ?, cantDays = ?, Total = ? WHERE id = ?';
-  db.query(sql, [pricDay, stars, reviews, cantDays, Total, carId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar la información de precios de coches:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Información de precios de coches actualizada correctamente');
-    res.status(200).json({ message: 'Información de precios de coches actualizada correctamente' });
-  });
-});
-
 
 //Pickup
 // Endpoint POST para agregar información de recogida de automóviles
@@ -427,21 +334,7 @@ app.get('/pickup', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información de recogida de automóviles
-app.put('/pickup/:id', (req, res) => {
-  const pickupId = req.params.id;
-  const { DatePick, DateDrop, LocationPick, LocationDrop } = req.body;
 
-  const sql = 'UPDATE pickup SET DatePick = ?, DateDrop = ?, LocationPick = ?, LocationDrop = ? WHERE id = ?';
-  db.query(sql, [DatePick, DateDrop, LocationPick, LocationDrop, pickupId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar la información de recogida de automóviles:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Información de recogida de automóviles actualizada correctamente');
-    res.status(200).json({ message: 'Información de recogida de automóviles actualizada correctamente' });
-  });
-});
 
 
 //Parameters
@@ -471,21 +364,7 @@ app.get('/parameters', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar parámetros de automóviles
-app.put('/parameters/:id', (req, res) => {
-  const paramId = req.params.id;
-  const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = req.body;
 
-  const sql = 'UPDATE Parameters SET velocidad = ?, Motor = ?, Audio = ?, Lights = ?, Prop1 = ?, Prop2 = ?, Prop3 = ?, Prop4 = ? WHERE id = ?';
-  db.query(sql, [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4, paramId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar los parámetros de automóviles:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Parámetros de automóviles actualizados correctamente');
-    res.status(200).json({ message: 'Parámetros de automóviles actualizados correctamente' });
-  });
-});
 
 //Owner
 // Endpoint POST para agregar información del propietario del auto
@@ -514,21 +393,7 @@ app.get('/owner', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información del propietario del auto
-app.put('/owner/:id', (req, res) => {
-  const ownerId = req.params.id;
-  const { TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul } = req.body;
 
-  const sql = 'UPDATE Owner SET TitleCar = ?, stars = ?, reviews = ?, location = ?, Propiet = ?, Seats = ?, claseAuto = ?, Baul = ? WHERE id = ?';
-  db.query(sql, [TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul, ownerId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar la información del propietario del auto:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Información del propietario del auto actualizada correctamente');
-    res.status(200).json({ message: 'Información del propietario del auto actualizada correctamente' });
-  });
-});
 //infoKnow
 // Endpoint POST para agregar información en la tabla infoKnow
 app.post('/infoKnow', (req, res) => {
@@ -556,21 +421,7 @@ app.get('/infoKnow', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información en la tabla infoKnow
-app.put('/infoKnow/:id', (req, res) => {
-  const infoKnowId = req.params.id;
-  const { InfoCancelPolicy, InfoSpecial } = req.body;
 
-  const sql = 'UPDATE infoKnow SET InfoCancelPolicy = ?, InfoSpecial = ? WHERE id = ?';
-  db.query(sql, [InfoCancelPolicy, InfoSpecial, infoKnowId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar la información en la tabla infoKnow:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Información actualizada correctamente en la tabla infoKnow');
-    res.status(200).json({ message: 'Información actualizada correctamente en la tabla infoKnow' });
-  });
-});
 //description
 // Endpoint POST para agregar información en la tabla Description
 app.post('/Description', (req, res) => {
@@ -598,21 +449,7 @@ app.get('/Description', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información en la tabla Description
-app.put('/Description/:id', (req, res) => {
-  const descriptionId = req.params.id;
-  const { carDescrip, carInfo } = req.body;
 
-  const sql = 'UPDATE Description SET carDescrip = ?, carInfo = ? WHERE id = ?';
-  db.query(sql, [carDescrip, carInfo, descriptionId], (err, result) => {
-    if (err) {
-      console.error('Error al actualizar la información en la tabla Description:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Información actualizada correctamente en la tabla Description');
-    res.status(200).json({ message: 'Información actualizada correctamente en la tabla Description' });
-  });
-});
 // Endpoint POST para agregar información del carrusel
 app.post('/carousel', (req, res) => {
   const { ubicacion, tituEvent, precio, stars, reviews } = req.body;
@@ -639,21 +476,101 @@ app.get('/carousel', (req, res) => {
     }
   });
 });
-// Endpoint PUT para actualizar información del carrusel
-app.put('/carousel/:id', (req, res) => {
-  const carouselId = req.params.id;
-  const { ubicacion, tituEvent, precio, stars, reviews } = req.body;
 
-  const sql = 'UPDATE Carousel SET ubicacion = ?, tituEvent = ?, precio = ?, stars = ?, reviews = ? WHERE id = ?';
-  db.query(sql, [ubicacion, tituEvent, precio, stars, reviews, carouselId], (err, result) => {
+app.put('/:endpoint/:id', upload.single('newImage'), (req, res) => {
+  const { endpoint, id } = req.params;
+  let sql, paramsToUpdate; // Declaremos las variables aquí fuera del bloque switch
+
+  switch (endpoint) {
+    case 'blog':
+      const { titulo, descripcion, Subtitulo } = req.body;
+      const newImageBlog = req.file;
+      sql = newImageBlog
+        ? 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ?, img = ? WHERE id = ?'
+        : 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ? WHERE id = ?';
+      paramsToUpdate = newImageBlog
+        ? [titulo, descripcion, Subtitulo, newImageBlog.path, id]
+        : [titulo, descripcion, Subtitulo, id];
+      break;
+
+    case 'PriceHotel':
+      const { priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge } = req.body;
+      const TotalPriceHotel = priceDay * cantNights;
+      const TotalFullPriceHotel = TotalPriceHotel + serviceCharge;
+      sql = 'UPDATE priceHotel SET priceDay = ?, stars = ?, reviews = ?, cantNights = ?, serviceCharge = ?, Total = ?, TotalFull = ? WHERE id = ?';
+      paramsToUpdate = [priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge, TotalPriceHotel, TotalFullPriceHotel, id];
+      break;
+
+    case 'roomRates':
+      const { minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth } = req.body;
+      sql = 'UPDATE roomRates SET minNights = ?, maxNights = ?, priceMonThu = ?, priceFriSun = ?, DescMonth = ? WHERE id = ?';
+      paramsToUpdate = [minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth, id];
+      break;
+
+    case 'tituloHotel':
+      const { Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths } = req.body;
+      sql = 'UPDATE tituloHotel SET Title = ?, stars = ?, ubicacion = ?, reviews = ?, NombreProp = ?, cantPerson = ?, cantBeds = ?, cantBaths = ? WHERE id = ?';
+      paramsToUpdate = [Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths, id];
+      break;
+
+    case 'priceCar':
+      const { pricDay, starsPriceCar, reviewsPriceCar, cantDays } = req.body;
+      const TotalPriceCar = pricDay * cantDays;
+      sql = 'UPDATE priceCar SET pricDay = ?, stars = ?, reviews = ?, cantDays = ?, Total = ? WHERE id = ?';
+      paramsToUpdate = [pricDay, starsPriceCar, reviewsPriceCar, cantDays, TotalPriceCar, id];
+      break;
+
+    case 'pickup':
+      const { DatePick, DateDrop, LocationPick, LocationDrop } = req.body;
+      sql = 'UPDATE pickup SET DatePick = ?, DateDrop = ?, LocationPick = ?, LocationDrop = ? WHERE id = ?';
+      paramsToUpdate = [DatePick, DateDrop, LocationPick, LocationDrop, id];
+      break;
+
+    case 'parameters':
+      const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = req.body;
+      sql = 'UPDATE Parameters SET velocidad = ?, Motor = ?, Audio = ?, Lights = ?, Prop1 = ?, Prop2 = ?, Prop3 = ?, Prop4 = ? WHERE id = ?';
+      paramsToUpdate = [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4, id];
+      break;
+
+    case 'owner':
+      const { TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul } = req.body;
+      sql = 'UPDATE Owner SET TitleCar = ?, stars = ?, reviews = ?, location = ?, Propiet = ?, Seats = ?, claseAuto = ?, Baul = ? WHERE id = ?';
+      paramsToUpdate = [TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul, id];
+      break;
+
+    case 'infoKnow':
+      const { InfoCancelPolicy, InfoSpecial } = req.body;
+      sql = 'UPDATE infoKnow SET InfoCancelPolicy = ?, InfoSpecial = ? WHERE id = ?';
+      paramsToUpdate = [InfoCancelPolicy, InfoSpecial, id];
+      break;
+
+    case 'Description':
+      const { carDescrip, carInfo } = req.body;
+      sql = 'UPDATE Description SET carDescrip = ?, carInfo = ? WHERE id = ?';
+      paramsToUpdate = [carDescrip, carInfo, id];
+      break;
+
+    case 'carousel':
+      const { ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel } = req.body;
+      sql = 'UPDATE Carousel SET ubicacion = ?, tituEvent = ?, precio = ?, stars = ?, reviews = ? WHERE id = ?';
+      paramsToUpdate = [ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel, id];
+      break;
+
+    default:
+      res.status(404).json({ error: 'Endpoint no encontrado' });
+      return;
+  }
+
+  db.query(sql, paramsToUpdate, (err, result) => {
     if (err) {
-      console.error('Error al actualizar la información del carrusel:', err);
+      console.error('Error al actualizar los datos:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
     }
-    console.log('Información del carrusel actualizada correctamente');
-    res.status(200).json({ message: 'Información del carrusel actualizada correctamente' });
+    console.log('Datos actualizados correctamente');
+    res.status(200).json({ message: 'Datos actualizados correctamente' });
   });
 });
+
 
 // Iniciar el servidor
 app.listen(port, () => {
