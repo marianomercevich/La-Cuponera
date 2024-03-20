@@ -470,99 +470,195 @@ app.get('/carousel', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
-app.put('/search/:table/:id', async (req, res) => {
+// PUT blog
+app.put('/blog/:id', async (req, res) => {
   try {
-    const { table, id } = req.params;
-    const updatedData = req.body;
-    let sql;
-    let paramsToUpdate;
-
-    switch (table) {
-    case 'blog':
-      const { titulo, descripcion, Subtitulo } = updatedData;
-      sql = 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ? WHERE id = ?';
-      paramsToUpdate = [titulo, descripcion, Subtitulo, id];
-      break;
-
-    case 'PriceHotel':
-      const { priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge } = updatedData;
-      const TotalPriceHotel = priceDay * cantNights;
-      const TotalFullPriceHotel = TotalPriceHotel + serviceCharge;
-      sql = 'UPDATE pricehotel SET priceDay = ?, stars = ?, reviews = ?, cantNights = ?, serviceCharge = ?, Total = ?, TotalFull = ? WHERE id = ?';
-      paramsToUpdate = [priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge, TotalPriceHotel, TotalFullPriceHotel, id];
-      break;
-
-    case 'roomRates':
-      const { minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth } = updatedData;
-      sql = 'UPDATE roomrates SET minNights = ?, maxNights = ?, priceMonThu = ?, priceFriSun = ?, DescMonth = ? WHERE id = ?';
-      paramsToUpdate = [minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth, id];
-      break;
-
-    case 'tituloHotel':
-      const { Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths } = updatedData;
-      sql = 'UPDATE titulohotel SET Title = ?, stars = ?, ubicacion = ?, reviews = ?, NombreProp = ?, cantPerson = ?, cantBeds = ?, cantBaths = ? WHERE id = ?';
-      paramsToUpdate = [Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths, id];
-      break;
-
-    case 'priceCar':
-      const { pricDay, starsPriceCar, reviewsPriceCar, cantDays } = updatedData;
-      const TotalPriceCar = pricDay * cantDays;
-      sql = 'UPDATE pricecar SET pricDay = ?, stars = ?, reviews = ?, cantDays = ?, Total = ? WHERE id = ?';
-      paramsToUpdate = [pricDay, starsPriceCar, reviewsPriceCar, cantDays, TotalPriceCar, id];
-      break;
-
-    case 'pickup':
-      const { DatePick, DateDrop, LocationPick, LocationDrop } = updatedData;
-      sql = 'UPDATE pickup SET DatePick = ?, DateDrop = ?, LocationPick = ?, LocationDrop = ? WHERE id = ?';
-      paramsToUpdate = [DatePick, DateDrop, LocationPick, LocationDrop, id];
-      break;
-
-    case 'parameters':
-      const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = updatedData;
-      sql = 'UPDATE parameters SET velocidad = ?, Motor = ?, Audio = ?, Lights = ?, Prop1 = ?, Prop2 = ?, Prop3 = ?, Prop4 = ? WHERE id = ?';
-      paramsToUpdate = [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4, id];
-      break;
-
-    case 'owner':
-      const { TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul } = updatedData;
-      sql = 'UPDATE owner SET TitleCar = ?, stars = ?, reviews = ?, location = ?, Propiet = ?, Seats = ?, claseAuto = ?, Baul = ? WHERE id = ?';
-      paramsToUpdate = [TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul, id];
-      break;
-
-    case 'infoKnow':
-      const { InfoCancelPolicy, InfoSpecial } = updatedData;
-      sql = 'UPDATE infoknow SET InfoCancelPolicy = ?, InfoSpecial = ? WHERE id = ?';
-      paramsToUpdate = [InfoCancelPolicy, InfoSpecial, id];
-      break;
-
-    case 'Description':
-      const { carDescrip, carInfo } = updatedData;
-      sql = 'UPDATE description SET carDescrip = ?, carInfo = ? WHERE id = ?';
-      paramsToUpdate = [carDescrip, carInfo, id];
-      break;
-
-    case 'carousel':
-      const { ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel } = updatedData;
-      sql = 'UPDATE carousel SET ubicacion = ?, tituEvent = ?, precio = ?, stars = ?, reviews = ? WHERE id = ?';
-      paramsToUpdate = [ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel, id];
-      break;
-
-    default:
-      return res.status(404).json({ error: 'Tabla no encontrada' });
-  }
-  paramsToUpdate = paramsToUpdate.map(value => (value !== undefined ? value : null));
-
-  const [rows, fields] = await db.execute(sql, paramsToUpdate);
-    console.log('Datos actualizados correctamente');
-    res.status(200).json({ message: 'Datos actualizados correctamente' });
+    const { id } = req.params;
+    const { titulo, descripcion, Subtitulo } = req.body;
+    const sql = 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ? WHERE id = ?';
+    const paramsToUpdate = [titulo, descripcion, Subtitulo, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de blog actualizados correctamente');
+    res.status(200).json({ message: 'Datos de blog actualizados correctamente' });
   } catch (error) {
-    console.error('Error al actualizar los datos:', error);
+    console.error('Error al actualizar los datos de blog:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint PUT para actualizar datos de PriceHotel
+app.put('/PriceHotel/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge } = req.body;
+    
+    // Verificar que todos los valores necesarios están presentes
+    if (priceDay === undefined || starsPriceHotel === undefined || reviewsPriceHotel === undefined || cantNights === undefined || serviceCharge === undefined) {
+      return res.status(400).json({ error: 'Faltan algunos datos necesarios' });
+    }
+
+    // Calcular los valores de TotalPriceHotel y TotalFullPriceHotel
+    const TotalPriceHotel = priceDay * cantNights;
+    const TotalFullPriceHotel = TotalPriceHotel + serviceCharge;
+
+    // Preparar y ejecutar la consulta SQL
+    const sql = 'UPDATE pricehotel SET priceDay = ?, stars = ?, reviews = ?, cantNights = ?, serviceCharge = ?, Total = ?, TotalFull = ? WHERE id = ?';
+    const paramsToUpdate = [priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge, TotalPriceHotel, TotalFullPriceHotel, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+
+    // Verificar si se realizó alguna actualización
+    if (rows.affectedRows === 0) {
+      return res.status(404).json({ error: 'No se encontró ningún PriceHotel con el ID proporcionado' });
+    }
+
+    console.log('Datos de PriceHotel actualizados correctamente');
+    res.status(200).json({ message: 'Datos de PriceHotel actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de PriceHotel:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
 
+// Endpoint PUT para actualizar datos de roomRates
+app.put('/roomRates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth } = req.body;
+    const sql = 'UPDATE roomrates SET minNights = ?, maxNights = ?, priceMonThu = ?, priceFriSun = ?, DescMonth = ? WHERE id = ?';
+    const paramsToUpdate = [minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de roomRates actualizados correctamente');
+    res.status(200).json({ message: 'Datos de roomRates actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de roomRates:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.put('/tituloHotel/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths } = req.body;
+    const sql = 'UPDATE titulohotel SET Title = ?, stars = ?, ubicacion = ?, reviews = ?, NombreProp = ?, cantPerson = ?, cantBeds = ?, cantBaths = ? WHERE id = ?';
+    const paramsToUpdate = [Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de tituloHotel actualizados correctamente');
+    res.status(200).json({ message: 'Datos de tituloHotel actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de tituloHotel:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint PUT para actualizar datos de priceCar
+app.put('/priceCar/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { pricDay, starsPriceCar, reviewsPriceCar, cantDays } = req.body;
+    const TotalPriceCar = pricDay * cantDays;
+    const sql = 'UPDATE pricecar SET pricDay = ?, stars = ?, reviews = ?, cantDays = ?, Total = ? WHERE id = ?';
+    const paramsToUpdate = [pricDay, starsPriceCar, reviewsPriceCar, cantDays, TotalPriceCar, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de priceCar actualizados correctamente');
+    res.status(200).json({ message: 'Datos de priceCar actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de priceCar:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+app.put('/pickup/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { DatePick, DateDrop, LocationPick, LocationDrop } = req.body;
+    const sql = 'UPDATE pickup SET DatePick = ?, DateDrop = ?, LocationPick = ?, LocationDrop = ? WHERE id = ?';
+    const paramsToUpdate = [DatePick, DateDrop, LocationPick, LocationDrop, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de pickup actualizados correctamente');
+    res.status(200).json({ message: 'Datos de pickup actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de pickup:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint PUT para actualizar datos de parameters
+app.put('/parameters/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = req.body;
+    const sql = 'UPDATE parameters SET velocidad = ?, Motor = ?, Audio = ?, Lights = ?, Prop1 = ?, Prop2 = ?, Prop3 = ?, Prop4 = ? WHERE id = ?';
+    const paramsToUpdate = [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de parameters actualizados correctamente');
+    res.status(200).json({ message: 'Datos de parameters actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de parameters:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint PUT para actualizar datos de owner
+app.put('/owner/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul } = req.body;
+    const sql = 'UPDATE owner SET TitleCar = ?, stars = ?, reviews = ?, location = ?, Propiet = ?, Seats = ?, claseAuto = ?, Baul = ? WHERE id = ?';
+    const paramsToUpdate = [TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de owner actualizados correctamente');
+    res.status(200).json({ message: 'Datos de owner actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de owner:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+app.put('/search/infoKnow/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { InfoCancelPolicy, InfoSpecial } = req.body;
+    const sql = 'UPDATE infoknow SET InfoCancelPolicy = ?, InfoSpecial = ? WHERE id = ?';
+    const paramsToUpdate = [InfoCancelPolicy, InfoSpecial, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de infoKnow actualizados correctamente');
+    res.status(200).json({ message: 'Datos de infoKnow actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de infoKnow:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint PUT para actualizar datos de Description
+app.put('/Description/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { carDescrip, carInfo } = req.body;
+    const sql = 'UPDATE description SET carDescrip = ?, carInfo = ? WHERE id = ?';
+    const paramsToUpdate = [carDescrip, carInfo, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de Description actualizados correctamente');
+    res.status(200).json({ message: 'Datos de Description actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de Description:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint PUT para actualizar datos de carousel
+app.put('/carousel/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel } = req.body;
+    const sql = 'UPDATE carousel SET ubicacion = ?, tituEvent = ?, precio = ?, stars = ?, reviews = ? WHERE id = ?';
+    const paramsToUpdate = [ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel, id];
+    const [rows, fields] = await db.execute(sql, paramsToUpdate);
+    console.log('Datos de carousel actualizados correctamente');
+    res.status(200).json({ message: 'Datos de carousel actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos de carousel:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
