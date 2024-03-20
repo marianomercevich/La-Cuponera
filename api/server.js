@@ -128,13 +128,18 @@ app.get('/', (req, res) => {
 
 // Endpoint de logout
 app.post('/logout', (req, res) => {
-  // Eliminar el token de sesión del almacenamiento local
-  localStorage.removeItem('token');
-  
-  // Redirigir al usuario a la página de inicio de sesión u otra página
-  res.json({ message: 'Sesión cerrada exitosamente' });
+  // Eliminar el token de sesión del almacenamiento en el servidor
+  // Por ejemplo, si estás utilizando variables de sesión
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error al cerrar sesión:', err);
+      res.status(500).json({ message: 'Error al cerrar sesión' });
+    } else {
+      // Envía una respuesta al cliente indicando que la sesión se ha cerrado correctamente
+      res.json({ message: 'Sesión cerrada exitosamente' });
+    }
+  });
 });
-
 
 
 // Configuración de multer para el almacenamiento de archivos
@@ -158,7 +163,7 @@ app.post('/blog', upload.single('img'), (req, res) => {
   const imgPath = req.file.path;
 
   const sql = 'INSERT INTO blog (titulo, img, descripcion, Subtitulo) VALUES (?, ?, ?, ?)';
-  db.query(sql, [titulo, imgPath, descripcion, Subtitulo], (err, result) => {
+  db.execute(sql, [titulo, imgPath, descripcion, Subtitulo], (err, result) => {
     if (err) {
       console.error('Error al insertar el blog:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -171,7 +176,7 @@ app.post('/blog', upload.single('img'), (req, res) => {
 // Endpoint GET para obtener los datos almacenados y enviarlos al cliente
 app.get('/blog', (req, res) => {
   const sql = 'SELECT * FROM blog';
-  db.query(sql, (err, results) => {
+  db.execute(sql, (err, results) => {
     if (err) {
       console.error('Error al obtener los blog:', err);
       res.status(500).json({ error: 'Error interno del servidor' });
@@ -196,28 +201,30 @@ app.post('/PriceHotel', (req, res) => {
   const Total = priceDay * cantNights;
   const TotalFull = Total + serviceCharge;
 
-  const sql = 'INSERT INTO priceHotel (priceDay, stars, reviews, cantNights, serviceCharge, Total, TotalFull) VALUES (?, ?, ?, ?, ?, ?, ?)';
-  db.query(sql, [priceDay, stars, reviews, cantNights, serviceCharge, Total, TotalFull], (err, result) => {
-    if (err) {
+  const sql = 'INSERT INTO pricehotel (priceDay, stars, reviews, cantNights, serviceCharge, Total, TotalFull) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  db.execute(sql, [priceDay, stars, reviews, cantNights, serviceCharge, Total, TotalFull])
+    .then(() => {
+      console.log('Datos insertados correctamente');
+      res.status(200).json({ message: 'Datos insertados correctamente' });
+    })
+    .catch((err) => {
       console.error('Error al insertar los datos:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Datos insertados correctamente');
-    res.status(200).json({ message: 'Datos insertados correctamente' });
-  });
+      res.status(500).json({ error: 'Error interno del servidor' });
+    });
 });
 
 // Endpoint GET para obtener los datos almacenados y enviarlos al cliente
 app.get('/PriceHotel', (req, res) => {
-  const sql = 'SELECT * FROM PriceHotel';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener los datos:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
+  const sql = 'SELECT * FROM pricehotel';
+  db.execute(sql)
+  .then(results => {
+    res.status(200).json(results[0]);
+  })
+  .catch(err => {
+    console.error('Error al obtener los blog:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
   });
+
 });
 
 //Room-Rates-jsx
@@ -225,37 +232,39 @@ app.get('/PriceHotel', (req, res) => {
 app.post('/roomRates', (req, res) => {
   const { minNights, maxNights, priceMonThu, priceFriSun, DescMonth } = req.body;
 
-  const sql = 'INSERT INTO roomRates (minNights, maxNights, priceMonThu, priceFriSun, DescMonth) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [minNights, maxNights, priceMonThu, priceFriSun, DescMonth], (err, result) => {
-    if (err) {
+  const sql = 'INSERT INTO roomrates (minNights, maxNights, priceMonThu, priceFriSun, DescMonth) VALUES (?, ?, ?, ?, ?)';
+  db.execute(sql, [minNights, maxNights, priceMonThu, priceFriSun, DescMonth])
+    .then(() => {
+      console.log('Tarifas de habitación insertadas correctamente');
+      res.status(200).json({ message: 'Tarifas de habitación insertadas correctamente' });
+    })
+    .catch((err) => {
       console.error('Error al insertar las tarifas de habitación:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    console.log('Tarifas de habitación insertadas correctamente');
-    res.status(200).json({ message: 'Tarifas de habitación insertadas correctamente' });
-  });
+      res.status(500).json({ error: 'Error interno del servidor' });
+    });
 });
 
 // Endpoint GET para obtener tarifas de habitación
 app.get('/roomRates', (req, res) => {
-  const sql = 'SELECT * FROM roomRates';
-  db.query(sql, (err, results) => {
-    if (err) {
+  const sql = 'SELECT * FROM roomrates';
+  db.execute(sql)
+    .then(results => {
+      res.status(200).json(results); // Devuelve solo 'results'
+    })
+    .catch(err => {
       console.error('Error al obtener las tarifas de habitación:', err);
       res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+    });
 });
+
 
 //Titulo.Hotel.jsx
 // Endpoint POST para agregar información del hotel
 app.post('/tituloHotel', (req, res) => {
   const { Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths } = req.body;
 
-  const sql = 'INSERT INTO tituloHotel (Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-  db.query(sql, [Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths], (err, result) => {
+  const sql = 'INSERT INTO titulohotel (Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  db.execute(sql, [Title, stars, ubicacion, reviews, NombreProp, cantPerson, cantBeds, cantBaths], (err, result) => {
     if (err) {
       console.error('Error al insertar la información del hotel:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -265,16 +274,14 @@ app.post('/tituloHotel', (req, res) => {
   });
 });
 // Endpoint GET para obtener información del hotel
-app.get('/tituloHotel', (req, res) => {
-  const sql = 'SELECT * FROM tituloHotel';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información del hotel:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/tituloHotel', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM titulohotel');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información del hotel:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 //Price-Car.jsx
@@ -284,8 +291,8 @@ app.post('/priceCar', (req, res) => {
 
   const Total = pricDay * cantDays;
 
-  const sql = 'INSERT INTO priceCar (pricDay, stars, reviews, cantDays, Total) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [pricDay, stars, reviews, cantDays, Total], (err, result) => {
+  const sql = 'INSERT INTO pricecar (pricday, stars, reviews, cantDays, Total) VALUES (?, ?, ?, ?, ?)';
+  db.execute(sql, [pricDay, stars, reviews, cantDays, Total], (err, result) => {
     if (err) {
       console.error('Error al insertar la información de precios de coches:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -295,16 +302,14 @@ app.post('/priceCar', (req, res) => {
   });
 });
 // Endpoint GET para obtener información de precios de coches
-app.get('/priceCar', (req, res) => {
-  const sql = 'SELECT * FROM priceCar';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información de precios de coches:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/priceCar', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM pricecar');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información de precios de coches:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 //Pickup
@@ -313,7 +318,7 @@ app.post('/pickup', (req, res) => {
   const { DatePick, DateDrop, LocationPick, LocationDrop } = req.body;
 
   const sql = 'INSERT INTO pickup (DatePick, DateDrop, LocationPick, LocationDrop) VALUES (?, ?, ?, ?)';
-  db.query(sql, [DatePick, DateDrop, LocationPick, LocationDrop], (err, result) => {
+  db.execute(sql, [DatePick, DateDrop, LocationPick, LocationDrop], (err, result) => {
     if (err) {
       console.error('Error al insertar la información de recogida de automóviles:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -323,16 +328,14 @@ app.post('/pickup', (req, res) => {
   });
 });
 // Endpoint GET para obtener información de recogida de automóviles
-app.get('/pickup', (req, res) => {
-  const sql = 'SELECT * FROM pickup';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información de recogida de automóviles:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/pickup', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM pickup');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información de recogida de automóviles:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 
@@ -342,8 +345,8 @@ app.get('/pickup', (req, res) => {
 app.post('/parameters', (req, res) => {
   const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = req.body;
 
-  const sql = 'INSERT INTO Parameters (velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-  db.query(sql, [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4], (err, result) => {
+  const sql = 'INSERT INTO parameters (velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  db.execute(sql, [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4], (err, result) => {
     if (err) {
       console.error('Error al insertar los parámetros de automóviles:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -353,16 +356,14 @@ app.post('/parameters', (req, res) => {
   });
 });
 // Endpoint GET para obtener parámetros de automóviles
-app.get('/parameters', (req, res) => {
-  const sql = 'SELECT * FROM Parameters';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener los parámetros de automóviles:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/parameters', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM parameters');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener los parámetros de automóviles:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 
@@ -371,8 +372,8 @@ app.get('/parameters', (req, res) => {
 app.post('/owner', (req, res) => {
   const { TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul } = req.body;
 
-  const sql = 'INSERT INTO Owner (TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-  db.query(sql, [TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul], (err, result) => {
+  const sql = 'INSERT INTO owner (TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  db.execute(sql, [TitleCar, stars, reviews, location, Propiet, Seats, claseAuto, Baul], (err, result) => {
     if (err) {
       console.error('Error al insertar la información del propietario del auto:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -382,16 +383,14 @@ app.post('/owner', (req, res) => {
   });
 });
 // Endpoint GET para obtener información del propietario del auto
-app.get('/owner', (req, res) => {
-  const sql = 'SELECT * FROM Owner';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información del propietario del auto:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/owner', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM owner');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información del propietario del auto:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 //infoKnow
@@ -399,8 +398,8 @@ app.get('/owner', (req, res) => {
 app.post('/infoKnow', (req, res) => {
   const { InfoCancelPolicy, InfoSpecial } = req.body;
 
-  const sql = 'INSERT INTO infoKnow (InfoCancelPolicy, InfoSpecial) VALUES (?, ?)';
-  db.query(sql, [InfoCancelPolicy, InfoSpecial], (err, result) => {
+  const sql = 'INSERT INTO infoknow (InfoCancelPolicy, InfoSpecial) VALUES (?, ?)';
+  db.execute(sql, [InfoCancelPolicy, InfoSpecial], (err, result) => {
     if (err) {
       console.error('Error al insertar la información en la tabla infoKnow:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -410,16 +409,14 @@ app.post('/infoKnow', (req, res) => {
   });
 });
 // Endpoint GET para obtener información de la tabla infoKnow
-app.get('/infoKnow', (req, res) => {
-  const sql = 'SELECT * FROM infoKnow';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información de la tabla infoKnow:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/infoKnow', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM infoknow');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información de la tabla infoKnow:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 //description
@@ -427,8 +424,8 @@ app.get('/infoKnow', (req, res) => {
 app.post('/Description', (req, res) => {
   const { carDescrip, carInfo } = req.body;
 
-  const sql = 'INSERT INTO Description (carDescrip, carInfo) VALUES (?, ?)';
-  db.query(sql, [carDescrip, carInfo], (err, result) => {
+  const sql = 'INSERT INTO description (carDescrip, carInfo) VALUES (?, ?)';
+  db.execute(sql, [carDescrip, carInfo], (err, result) => {
     if (err) {
       console.error('Error al insertar la información en la tabla Description:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -438,24 +435,23 @@ app.post('/Description', (req, res) => {
   });
 });
 // Endpoint GET para obtener información de la tabla Description
-app.get('/Description', (req, res) => {
-  const sql = 'SELECT * FROM Description';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información de la tabla Description:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/Description', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM description');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información de la tabla Description:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
+
 
 // Endpoint POST para agregar información del carrusel
 app.post('/carousel', (req, res) => {
   const { ubicacion, tituEvent, precio, stars, reviews } = req.body;
 
-  const sql = 'INSERT INTO Carousel (ubicacion, tituEvent, precio, stars, reviews) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [ubicacion, tituEvent, precio, stars, reviews], (err, result) => {
+  const sql = 'INSERT INTO carousel (ubicacion, tituEvent, precio, stars, reviews) VALUES (?, ?, ?, ?, ?)';
+  db.execute(sql, [ubicacion, tituEvent, precio, stars, reviews], (err, result) => {
     if (err) {
       console.error('Error al insertar la información del carrusel:', err);
       return res.status(500).json({ error: 'Error interno del servidor' });
@@ -465,110 +461,105 @@ app.post('/carousel', (req, res) => {
   });
 });
 // Endpoint GET para obtener información del carrusel
-app.get('/carousel', (req, res) => {
-  const sql = 'SELECT * FROM Carousel';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al obtener la información del carrusel:', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    } else {
-      res.status(200).json(results);
-    }
-  });
+app.get('/carousel', async (req, res) => {
+  try {
+    const [results] = await db.execute('SELECT * FROM carousel');
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error al obtener la información del carrusel:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
-app.put('/:endpoint/:id', upload.single('newImage'), (req, res) => {
-  const { endpoint, id } = req.params;
-  let sql, paramsToUpdate; // Declaremos las variables aquí fuera del bloque switch
+app.put('/search/:table/:id', async (req, res) => {
+  try {
+    const { table, id } = req.params;
+    const updatedData = req.body;
+    let sql;
+    let paramsToUpdate;
 
-  switch (endpoint) {
+    switch (table) {
     case 'blog':
-      const { titulo, descripcion, Subtitulo } = req.body;
-      const newImageBlog = req.file;
-      sql = newImageBlog
-        ? 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ?, img = ? WHERE id = ?'
-        : 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ? WHERE id = ?';
-      paramsToUpdate = newImageBlog
-        ? [titulo, descripcion, Subtitulo, newImageBlog.path, id]
-        : [titulo, descripcion, Subtitulo, id];
+      const { titulo, descripcion, Subtitulo } = updatedData;
+      sql = 'UPDATE blog SET titulo = ?, descripcion = ?, Subtitulo = ? WHERE id = ?';
+      paramsToUpdate = [titulo, descripcion, Subtitulo, id];
       break;
 
     case 'PriceHotel':
-      const { priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge } = req.body;
+      const { priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge } = updatedData;
       const TotalPriceHotel = priceDay * cantNights;
       const TotalFullPriceHotel = TotalPriceHotel + serviceCharge;
-      sql = 'UPDATE priceHotel SET priceDay = ?, stars = ?, reviews = ?, cantNights = ?, serviceCharge = ?, Total = ?, TotalFull = ? WHERE id = ?';
+      sql = 'UPDATE pricehotel SET priceDay = ?, stars = ?, reviews = ?, cantNights = ?, serviceCharge = ?, Total = ?, TotalFull = ? WHERE id = ?';
       paramsToUpdate = [priceDay, starsPriceHotel, reviewsPriceHotel, cantNights, serviceCharge, TotalPriceHotel, TotalFullPriceHotel, id];
       break;
 
     case 'roomRates':
-      const { minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth } = req.body;
-      sql = 'UPDATE roomRates SET minNights = ?, maxNights = ?, priceMonThu = ?, priceFriSun = ?, DescMonth = ? WHERE id = ?';
+      const { minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth } = updatedData;
+      sql = 'UPDATE roomrates SET minNights = ?, maxNights = ?, priceMonThu = ?, priceFriSun = ?, DescMonth = ? WHERE id = ?';
       paramsToUpdate = [minNightsRoomRates, maxNightsRoomRates, priceMonThu, priceFriSun, DescMonth, id];
       break;
 
     case 'tituloHotel':
-      const { Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths } = req.body;
-      sql = 'UPDATE tituloHotel SET Title = ?, stars = ?, ubicacion = ?, reviews = ?, NombreProp = ?, cantPerson = ?, cantBeds = ?, cantBaths = ? WHERE id = ?';
+      const { Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths } = updatedData;
+      sql = 'UPDATE titulohotel SET Title = ?, stars = ?, ubicacion = ?, reviews = ?, NombreProp = ?, cantPerson = ?, cantBeds = ?, cantBaths = ? WHERE id = ?';
       paramsToUpdate = [Title, starsTituloHotel, ubicacion, reviewsTituloHotel, NombreProp, cantPerson, cantBeds, cantBaths, id];
       break;
 
     case 'priceCar':
-      const { pricDay, starsPriceCar, reviewsPriceCar, cantDays } = req.body;
+      const { pricDay, starsPriceCar, reviewsPriceCar, cantDays } = updatedData;
       const TotalPriceCar = pricDay * cantDays;
-      sql = 'UPDATE priceCar SET pricDay = ?, stars = ?, reviews = ?, cantDays = ?, Total = ? WHERE id = ?';
+      sql = 'UPDATE pricecar SET pricDay = ?, stars = ?, reviews = ?, cantDays = ?, Total = ? WHERE id = ?';
       paramsToUpdate = [pricDay, starsPriceCar, reviewsPriceCar, cantDays, TotalPriceCar, id];
       break;
 
     case 'pickup':
-      const { DatePick, DateDrop, LocationPick, LocationDrop } = req.body;
+      const { DatePick, DateDrop, LocationPick, LocationDrop } = updatedData;
       sql = 'UPDATE pickup SET DatePick = ?, DateDrop = ?, LocationPick = ?, LocationDrop = ? WHERE id = ?';
       paramsToUpdate = [DatePick, DateDrop, LocationPick, LocationDrop, id];
       break;
 
     case 'parameters':
-      const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = req.body;
-      sql = 'UPDATE Parameters SET velocidad = ?, Motor = ?, Audio = ?, Lights = ?, Prop1 = ?, Prop2 = ?, Prop3 = ?, Prop4 = ? WHERE id = ?';
+      const { velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4 } = updatedData;
+      sql = 'UPDATE parameters SET velocidad = ?, Motor = ?, Audio = ?, Lights = ?, Prop1 = ?, Prop2 = ?, Prop3 = ?, Prop4 = ? WHERE id = ?';
       paramsToUpdate = [velocidad, Motor, Audio, Lights, Prop1, Prop2, Prop3, Prop4, id];
       break;
 
     case 'owner':
-      const { TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul } = req.body;
-      sql = 'UPDATE Owner SET TitleCar = ?, stars = ?, reviews = ?, location = ?, Propiet = ?, Seats = ?, claseAuto = ?, Baul = ? WHERE id = ?';
+      const { TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul } = updatedData;
+      sql = 'UPDATE owner SET TitleCar = ?, stars = ?, reviews = ?, location = ?, Propiet = ?, Seats = ?, claseAuto = ?, Baul = ? WHERE id = ?';
       paramsToUpdate = [TitleCar, starsOwner, reviewsOwner, location, Propiet, Seats, claseAuto, Baul, id];
       break;
 
     case 'infoKnow':
-      const { InfoCancelPolicy, InfoSpecial } = req.body;
-      sql = 'UPDATE infoKnow SET InfoCancelPolicy = ?, InfoSpecial = ? WHERE id = ?';
+      const { InfoCancelPolicy, InfoSpecial } = updatedData;
+      sql = 'UPDATE infoknow SET InfoCancelPolicy = ?, InfoSpecial = ? WHERE id = ?';
       paramsToUpdate = [InfoCancelPolicy, InfoSpecial, id];
       break;
 
     case 'Description':
-      const { carDescrip, carInfo } = req.body;
-      sql = 'UPDATE Description SET carDescrip = ?, carInfo = ? WHERE id = ?';
+      const { carDescrip, carInfo } = updatedData;
+      sql = 'UPDATE description SET carDescrip = ?, carInfo = ? WHERE id = ?';
       paramsToUpdate = [carDescrip, carInfo, id];
       break;
 
     case 'carousel':
-      const { ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel } = req.body;
-      sql = 'UPDATE Carousel SET ubicacion = ?, tituEvent = ?, precio = ?, stars = ?, reviews = ? WHERE id = ?';
+      const { ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel } = updatedData;
+      sql = 'UPDATE carousel SET ubicacion = ?, tituEvent = ?, precio = ?, stars = ?, reviews = ? WHERE id = ?';
       paramsToUpdate = [ubicacionCarousel, tituEvent, precio, starsCarousel, reviewsCarousel, id];
       break;
 
     default:
-      res.status(404).json({ error: 'Endpoint no encontrado' });
-      return;
+      return res.status(404).json({ error: 'Tabla no encontrada' });
   }
+  paramsToUpdate = paramsToUpdate.map(value => (value !== undefined ? value : null));
 
-  db.query(sql, paramsToUpdate, (err, result) => {
-    if (err) {
-      console.error('Error al actualizar los datos:', err);
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
+  const [rows, fields] = await db.execute(sql, paramsToUpdate);
     console.log('Datos actualizados correctamente');
     res.status(200).json({ message: 'Datos actualizados correctamente' });
-  });
+  } catch (error) {
+    console.error('Error al actualizar los datos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 
