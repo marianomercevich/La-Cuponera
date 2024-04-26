@@ -1,4 +1,4 @@
-/* import express from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import { loginUser, registerUser } from '../controllers/userAuthController.js';
 import User from '../models/user.js';
@@ -95,4 +95,3 @@ router.post('/login', loginUser);
 router.post('/register', registerUser);
 
 export default router;
- */

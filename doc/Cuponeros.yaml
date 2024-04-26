@@ -1,4 +1,4 @@
-# modificar segun ruta de cupones
+# modificar segun ruta de cuponeros
 paths:
   /products:
     get:
