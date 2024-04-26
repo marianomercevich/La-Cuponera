@@ -1,33 +1,81 @@
-#La Cuponera
+# La Cuponera
 
-##Descripción general de la API:
-Explica brevemente qué hace tu API y cuáles son sus principales funciones.
+## Descripción general de la API:
+La Cuponera es una plataforma que conecta a los usuarios con las empresas para ofrecer y utilizar cupones de descuento. La API proporciona endpoints para la gestión de cuponeros, empresas y cupones, así como funciones de geolocalización para encontrar cupones cercanos a la ubicación del usuario.
 
-##Dependencias:
+## Dependencias:
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
 
-##Endpoints:
-Lista todos los endpoints de tu API junto con su descripción y propósito.
-Para cada endpoint, especifica el método HTTP utilizado (GET, POST, PUT, DELETE, etc.).
+## Endpoints:
 
-##Parámetros de solicitud:
-Para cada endpoint, describe los parámetros que se esperan en la solicitud (query params, body params, etc.).
+### Cuponeros:
+- **GET /cuponeros**: Obtiene la información de todos los cuponeros registrados.
+- **POST /cuponeros**: Registra un nuevo cuponero.
+- **GET /cuponeros/:id**: Obtiene la información de un cuponero específico.
+- **PUT /cuponeros/:id**: Actualiza la información de un cuponero existente.
+- **DELETE /cuponeros/:id**: Elimina un cuponero.
 
-##Respuestas de la API:
-Describe las respuestas que puede devolver tu API, incluidos los códigos de estado HTTP y los posibles cuerpos de respuesta.
+### Empresas:
+- **GET /empresas**: Obtiene la información de todas las empresas registradas.
+- **POST /empresas**: Registra una nueva empresa.
+- **GET /empresas/:id**: Obtiene la información de una empresa específica.
+- **PUT /empresas/:id**: Actualiza la información de una empresa existente.
+- **DELETE /empresas/:id**: Elimina una empresa.
 
-##Ejemplos de uso:
-Proporciona ejemplos de solicitudes y respuestas para cada endpoint.
+### Cupones:
+- **GET /cupones**: Obtiene la lista de todos los cupones disponibles.
+- **POST /cupones**: Crea un nuevo cupón.
+- **GET /cupones/:id**: Obtiene la información de un cupón específico.
+- **PUT /cupones/:id**: Actualiza la información de un cupón existente.
+- **DELETE /cupones/:id**: Elimina un cupón.
 
-##Autenticación y autorización:
-Explica cómo los usuarios pueden autenticarse en tu API y qué autorizaciones necesitan para acceder a determinados endpoints.
+## Parámetros de solicitud:
+- Para los endpoints de creación y actualización, se esperan datos en formato JSON en el cuerpo de la solicitud.
 
-##Errores y manejo de excepciones:
-Documenta los posibles errores que puede devolver tu API y cómo los clientes pueden manejarlos.
+## Respuestas de la API:
+- La API devuelve respuestas en formato JSON.
+- Códigos de estado HTTP comunes incluyen 200 para solicitudes exitosas, 400 para solicitudes incorrectas y 500 para errores internos del servidor.
 
-##Seguridad:
-Si hay consideraciones de seguridad importantes, como protección contra ataques de inyección SQL o ataques de denegación de servicio, asegúrate de documentarlas.
+## Ejemplos de uso:
+- Para obtener todos los cuponeros:
 
-##Ejemplos de código:
-Proporciona ejemplos de código en diferentes lenguajes de programación para mostrar cómo consumir tu API.
+                    Respuesta:
+                    ```json
+                    [
+                    {
+                        "id": 1,
+                        "nombre": "Cuponero1",
+                        "email": "cuponero1@example.com"
+                    },
+                    {
+                        "id": 2,
+                        "nombre": "Cuponero2",
+                        "email": "cuponero2@example.com"
+                    }
+                    ]
 
-##Herramientas de prueba:
+## Autenticación y autorización:
+- Los usuarios pueden autenticarse mediante un token JWT que se envía en el encabezado de autorización.
+- Algunos endpoints, como la creación y actualización de cupones, pueden requerir roles específicos para acceder.
+
+## Errores y manejo de excepciones:
+- La API devuelve mensajes de error descriptivos en caso de solicitudes incorrectas o errores del servidor.
+- Los clientes deben manejar los errores y mostrar mensajes informativos al usuario.
+
+## Seguridad:
+- La API utiliza medidas de seguridad como la validación de datos de entrada para prevenir ataques de inyección y autenticación de usuarios para proteger la información sensible.
+
+## Ejemplos de código:
+
+                Pfetch('https://api.lacuponera.com/cuponeros')
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+
+## Herramientas de prueba:
+# Swagger
+# postman
+# thunder client
