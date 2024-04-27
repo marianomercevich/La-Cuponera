@@ -32,6 +32,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
 // Rutas de la API
 app.use('/api/Cuponeros', userRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+//agregar rutas faltantes
 
 
 // Manejo de rutas no encontradas

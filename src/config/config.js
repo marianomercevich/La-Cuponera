@@ -7,8 +7,6 @@ export const SECRET_PASS = process.env.SECRET_PASS;
 export const PRIVATE_KEY = process.env.PRIVATE_KEY;
 export const JWT_CLIENT_ID = process.env.JWT_CLIENT_ID;
 export const JWT_CLIENT_SECRET = process.env.JWT_CLIENT_SECRET;
-export const JWT_COMPANY_SECRET = process.env.JWT_COMPANY_SECRET;
-export const JWT_EMPRESA_SECRET = process.env.JJWT_EMPRESA_SECRET;
 export const ENVIRONMENT = process.env.ENVIRONMENT
 
 /* 
