@@ -1,15 +1,20 @@
-/* import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
-// Definir el esquema de la empresa
-const companySchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+const { Schema } = mongoose;
+
+const couponSchema = new Schema({
+  title: {type: String, required: true},
+  description: { type: String, required: true},
+  discount: {type: Number, required: true},
+  location: {type: { type: String, default: 'Point' },
+    coordinates: { type: [Number], default: [0, 0] }},
+  expirationDate: {type: Date, required: true },
+  createdBy: {type: Schema.Types.ObjectId,ref: 'Empresa'}, // Referencia al modelo de empresas creadoras de cupones
+  createdAt: {type: Date, default: Date.now}
 });
 
+couponSchema.index({ location: '2dsphere' }); // Índice geoespacial para la ubicación del cupón
 
-// Exportar el modelo de la empresa basado en el esquema
-const Company= mongoose.model('Company', companySchema);
+const Coupon = mongoose.model('Coupon', couponSchema);
 
-export default Company; */
+export default Coupon;

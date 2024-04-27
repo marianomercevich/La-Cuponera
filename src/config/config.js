@@ -16,4 +16,4 @@ export const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 export const PERSISTENCE = process.env.PERSISTENCE;
 export const NODEMAILER_USER = process.env.NODEMAILER_USER;
-export const NODEMAILER_PASS = process.env.NODEMAILER_PASS;
+export const NODEMAILER_PASS = process.env.NODEMAILER_PASS; */
