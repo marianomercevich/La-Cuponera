@@ -1,7 +1,7 @@
 # La Cuponera
 
 ## Descripción general de la API:
-La Cuponera es una plataforma que conecta a los usuarios con las empresas para ofrecer y utilizar cupones de descuento. La API proporciona endpoints para la gestión de cuponeros, empresas y cupones, así como funciones de geolocalización para encontrar cupones cercanos a la ubicación del usuario.
+La Cuponera es una plataforma que conecta a los usuarios con las empresas para ofrecer y utilizar cupones de descuento. La API proporciona endpoints para la gestión de cuponeros (usuarios), cuponizadores (empresas) y cupones, así como funciones de geolocalización para encontrar cupones cercanos a la ubicación del usuario.
 
 ## Dependencias:
 - Node.js
@@ -12,18 +12,19 @@ La Cuponera es una plataforma que conecta a los usuarios con las empresas para o
 ## Endpoints:
 
 ### Cuponeros:
-- **GET /cuponeros**: Obtiene la información de todos los cuponeros registrados.
-- **POST /cuponeros**: Registra un nuevo cuponero.
-- **GET /cuponeros/:id**: Obtiene la información de un cuponero específico.
-- **PUT /cuponeros/:id**: Actualiza la información de un cuponero existente.
-- **DELETE /cuponeros/:id**: Elimina un cuponero.
+- **GET api/cuponeros**: Obtiene la información de todos los cuponeros registrados.
+- **POST api/cuponeros**: Registra un nuevo cuponero.
+- **GET api/cuponeros/:id**: Obtiene la información de un cuponero específico.
+- **PUT api/cuponeros/:id**: Actualiza la información de un cuponero existente.
+- **DELETE api/cuponeros/:id**: Elimina un cuponero.
+- **DOCUMENTACION /api/docs** : Obtiene documentacion via Swagger.
 
-### Empresas:
-- **GET /empresas**: Obtiene la información de todas las empresas registradas.
-- **POST /empresas**: Registra una nueva empresa.
-- **GET /empresas/:id**: Obtiene la información de una empresa específica.
-- **PUT /empresas/:id**: Actualiza la información de una empresa existente.
-- **DELETE /empresas/:id**: Elimina una empresa.
+### Cuponizadores:
+- **GET /cuponizadores**: Obtiene la información de todas las empresas registradas.
+- **POST /cuponizadores**: Registra una nueva empresa.
+- **GET /cuponizadores/:id**: Obtiene la información de una empresa específica.
+- **PUT /cuponizadores/:id**: Actualiza la información de una empresa existente.
+- **DELETE /cuponizadores/:id**: Elimina una empresa.
 
 ### Cupones:
 - **GET /cupones**: Obtiene la lista de todos los cupones disponibles.
@@ -31,6 +32,8 @@ La Cuponera es una plataforma que conecta a los usuarios con las empresas para o
 - **GET /cupones/:id**: Obtiene la información de un cupón específico.
 - **PUT /cupones/:id**: Actualiza la información de un cupón existente.
 - **DELETE /cupones/:id**: Elimina un cupón.
+
+## Pagos
 
 ## Parámetros de solicitud:
 - Para los endpoints de creación y actualización, se esperan datos en formato JSON en el cuerpo de la solicitud.
@@ -47,12 +50,12 @@ La Cuponera es una plataforma que conecta a los usuarios con las empresas para o
                     [
                     {
                         "id": 1,
-                        "nombre": "Cuponero1",
+                        "nombre": "Usuario1",
                         "email": "cuponero1@example.com"
                     },
                     {
                         "id": 2,
-                        "nombre": "Cuponero2",
+                        "nombre": "Usuario2",
                         "email": "cuponero2@example.com"
                     }
                     ]
@@ -76,6 +79,8 @@ La Cuponera es una plataforma que conecta a los usuarios con las empresas para o
                 .catch(error => console.error('Error:', error));
 
 ## Herramientas de prueba:
-# Swagger
+# Swagger 
 # postman
 # thunder client
+
+## Testeos
