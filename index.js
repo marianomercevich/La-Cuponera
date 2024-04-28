@@ -8,7 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 
 // Importa las rutas de tu API
-import userRoutes from './src/routes/usersRoutes.js';
+import userRoutes from './src/routes/cuponsRoutes.js';
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 
 // Configuración de Express

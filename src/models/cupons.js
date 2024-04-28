@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
+const COUPON_COLLECTION_NAME = 'cupones';
 const { Schema } = mongoose;
+
 
 const couponSchema = new Schema({
   title: { type: String, required: true },
@@ -24,5 +26,6 @@ const couponSchema = new Schema({
 couponSchema.index({ location: '2dsphere' }); // Índice geoespacial para la ubicación del cupón
 
 const Coupon = mongoose.model('Coupon', couponSchema, COUPON_COLLECTION_NAME);
+
 
 export default Coupon;

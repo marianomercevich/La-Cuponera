@@ -1,5 +1,5 @@
 import express from 'express';
-import Coupon from '../models/coupon.js';
+import Coupon from '../models/cupons.js';
 import upload from '../middlewares/multer.js';
 
 const router = express.Router();
