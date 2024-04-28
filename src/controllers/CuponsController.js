@@ -1,63 +1,53 @@
-/* import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import Coupon from '../models/coupon.js';
 
-// Función para manejar el login de usuarios
-export const loginUser = async (req, res) => {
+// Función para manejar el login de cupones
+export const loginCoupon = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Buscar el usuario en la base de datos por su email
-        const user = await User.findOne({ email });
+        // Buscar el cupón en la base de datos por su email
+        const coupon = await Coupon.findOne({ email });
 
-        // Verificar si el usuario existe y si la contraseña es válida
-        if (!user || !bcrypt.compareSync(password, user.password)) {
+        // Verificar si el cupón existe y si la contraseña es válida
+        if (!coupon || !bcrypt.compareSync(password, coupon.password)) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
         // Generar un token de autenticación
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ couponId: coupon._id }, process.env.JWT_COUPON_SECRET, { expiresIn: '1h' });
 
         // Devolver el token como respuesta
         res.status(200).json({ token });
     } catch (error) {
-        console.error('Error en loginUser:', error);
+        console.error('Error en loginCoupon:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
 
-// Función para manejar el registro de usuarios
-export const registerUser = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+// Función para manejar el registro de cupones
+export const registerCoupon = async (req, res) => {
+    const { title, description, discount, location, expirationDate, createdBy } = req.body;
 
     try {
-        // Verificar si el email ya está en uso
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'El email ya está registrado' });
-        }
-
-        // Crear un nuevo usuario
-        const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            password: bcrypt.hashSync(password, 10),
+        // Crear un nuevo cupón
+        const newCoupon = new Coupon({
+            title,
+            description,
+            discount,
+            location,
+            expirationDate,
+            createdBy,
         });
 
-        // Guardar el nuevo usuario en la base de datos
-        await newUser.save();
+        // Guardar el nuevo cupón en la base de datos
+        await newCoupon.save();
 
-        // Generar un token de autenticación
-        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
-
-        // Devolver el token como respuesta
-        res.status(201).json({ token });
+        // Devolver el cupón creado como respuesta
+        res.status(201).json(newCoupon);
     } catch (error) {
-        console.error('Error en registerUser:', error);
+        console.error('Error en registerCoupon:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
-
-
- */

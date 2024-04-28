@@ -1,15 +1,13 @@
-/* import express from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
 // Importa las rutas de tu API
-import  userRoutes  from './routes/usersRoutes.js';
-import companyRoutes from './routes/companyRoutes.js';
-import DashboardEmpresaRoutes from './routes/DasboardEmpresaRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
 
-import {MONGO_URI, MONGO_DB_NAME} from "./config/config.js";
 
+import { MONGO_URI, MONGO_DB_NAME } from "./config/config.js";
 
 // Configuración de Express
 const app = express();
@@ -20,18 +18,13 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 
-
-
-// Conexión a MongoDB 
+// Conexión a MongoDB
 mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME}`)
   .then(() => console.log('Conexión a MongoDB establecida'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas de la API
-app.use('/api/users', userRoutes);
-app.use('/api/companies', companyRoutes);
-app.use('/api/dashboardempresa', DashboardEmpresaRoutes);
-
+app.use('/api/coupons', couponRoutes);
 
 
 // Manejo de rutas no encontradas
@@ -55,4 +48,3 @@ app.use((error, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor Express corriendo en el puerto ${PORT}`);
 });
- */
