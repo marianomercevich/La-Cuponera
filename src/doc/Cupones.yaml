@@ -1,0 +1,99 @@
+openapi: 3.0.0
+info:
+  title: Documentación de la API de Cupones
+  version: 1.0.0
+paths:
+  /api/cupones:
+    get:
+      summary: Obtener todos los cupones
+      responses:
+        '200':
+          description: Éxito. Retorna una lista de cupones.
+        '500':
+          description: Error interno del servidor.
+    post:
+      summary: Crear un nuevo cupón
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cupon'
+      responses:
+        '201':
+          description: Cupón creado correctamente.
+        '500':
+          description: Error interno del servidor.
+  /api/cupones/{id}:
+    get:
+      summary: Obtener un cupón por su ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Éxito. Retorna el cupón solicitado.
+        '404':
+          description: Cupón no encontrado.
+        '500':
+          description: Error interno del servidor.
+    put:
+      summary: Actualizar un cupón existente por su ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cupon'
+      responses:
+        '200':
+          description: Cupón actualizado correctamente.
+        '404':
+          description: Cupón no encontrado.
+        '500':
+          description: Error interno del servidor.
+    delete:
+      summary: Eliminar un cupón por su ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cupón eliminado correctamente.
+        '404':
+          description: Cupón no encontrado.
+        '500':
+          description: Error interno del servidor.
+components:
+  schemas:
+    Cupon:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        discount:
+          type: number
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+        expirationDate:
+          type: string
+          format: date

@@ -2,6 +2,7 @@ import { config } from "dotenv"; config();
 export const PORT = process.env.PORT || 8080;
 export const MONGO_URI = process.env.MONGO_URI;
 export const MONGO_DB_NAME_PROD = process.env.MONGO_DB_NAME_PROD;
+export const COUPON_COLLECTION_NAME = 'Cupones';
 export const MONGO_DB_NAME_TEST = process.env.MONGO_DB_NAME_TEST;
 export const SECRET_PASS = process.env.SECRET_PASS;
 export const PRIVATE_KEY = process.env.PRIVATE_KEY;

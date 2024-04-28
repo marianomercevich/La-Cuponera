@@ -1,32 +1,36 @@
+// index.js
+
 import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 // Importa las rutas de tu API
-import couponRoutes from './routes/couponRoutes.js';
-
-
-import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST  } from "./config/config.js";
+import userRoutes from './src/routes/usersRoutes.js';
+import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 
 // Configuración de Express
 const app = express();
 const PORT = process.env.PORT || 5100;
+
+const swaggerDocument = YAML.load('./src/doc/Cupones.yaml'); // Ruta a tu archivo de especificación Swagger
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 
-// Conexión a MongoDB
-mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
+// Conexión a MongoDB 
+mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Conexión a MongoDB establecida'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas de la API
-app.use('/api/coupons', couponRoutes);
+app.use('/api/Cupones', userRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
+// Puedes agregar aquí más rutas si es necesario
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
