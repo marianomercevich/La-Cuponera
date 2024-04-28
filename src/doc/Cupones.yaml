@@ -83,17 +83,33 @@ components:
       properties:
         title:
           type: string
+          description: Título del cupón.
         description:
           type: string
+          description: Descripción del cupón.
         discount:
           type: number
+          description: Descuento aplicable al cupón.
         location:
           type: object
           properties:
             latitude:
               type: number
+              description: Latitud de la ubicación del cupón.
             longitude:
               type: number
+              description: Longitud de la ubicación del cupón.
+          description: Coordenadas geográficas de la ubicación del cupón.
         expirationDate:
           type: string
           format: date
+          description: Fecha de vencimiento del cupón en formato ISO 8601.
+        imagePath:
+          type: string
+          description: Ruta de la imagen asociada al cupón.
+      required:
+        - title
+        - description
+        - discount
+        - location
+        - expirationDate

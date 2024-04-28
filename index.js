@@ -23,12 +23,12 @@ app.use(cors());
 app.use(express.json());
 
 // Conexión a MongoDB 
-mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .then(() => console.log('Conexión a MongoDB establecida'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas de la API
-app.use('/api/Cupones', userRoutes);
+app.use('/api/cupones', userRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Puedes agregar aquí más rutas si es necesario
 
