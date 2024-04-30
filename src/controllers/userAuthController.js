@@ -28,7 +28,13 @@ export const loginUser = async (req, res) => {
 
 // Función para manejar el registro de usuarios
 export const registerUser = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { id,
+        nombre,
+        apellido,
+        email,
+        contraseña,
+        registroFecha,
+        estadoVerificacion } = req.body;
 
     try {
         // Verificar si el email ya está en uso
@@ -39,10 +45,13 @@ export const registerUser = async (req, res) => {
 
         // Crear un nuevo usuario
         const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            password: bcrypt.hashSync(password, 10),
+          id,
+          nombre,
+          apellido,
+          email,
+          contraseña: bcrypt.hashSync(contraseña, 10),
+          registroFecha,
+          estadoVerificacion
         });
 
         // Guardar el nuevo usuario en la base de datos
@@ -58,3 +67,4 @@ export const registerUser = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
+/* falta la logica de login y persistencia de datos de login */

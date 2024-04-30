@@ -38,10 +38,14 @@ router.post('/', async (req, res) => {
 
     // Crear un nuevo usuario
     const newUser = new User({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
+
+      id: req.body.id,
+      nombre: req.body.nombre,
+      apellido: req.body.apellido,
       email: req.body.email,
-      password: hashedPassword,
+      contraseña: hashedPassword,
+      registroFecha: req.body.registroFecha, 
+      estadoVerificacion: req.body.estadoVerificacion
     });
 
     // Guardar el usuario en la base de datos
