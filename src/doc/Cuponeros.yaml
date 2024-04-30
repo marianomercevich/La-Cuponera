@@ -1,0 +1,79 @@
+openapi: 3.0.0
+info:
+  title: Documentación de la API de Cuponeros
+  version: 1.0.0
+paths:
+  /api/Cuponeros:
+    get:
+      summary: Obtener todos los cuponeros
+      responses:
+        '200':
+          description: Éxito. Retorna una lista de cuponeros.
+        '500':
+          description: Error interno del servidor.
+    post:
+      summary: Crear un nuevo cuponero
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cuponero'
+      responses:
+        '201':
+          description: Cuponero creado correctamente.
+        '500':
+          description: Error interno del servidor.
+  /api/Cuponeros/{id}:
+    put:
+      summary: Actualizar un cuponero existente
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID del cuponero a actualizar
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cuponero'
+      responses:
+        '200':
+          description: Cuponero actualizado correctamente.
+        '404':
+          description: Cuponero no encontrado.
+        '500':
+          description: Error interno del servidor.
+    delete:
+      summary: Eliminar un cuponero existente
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID del cuponero a eliminar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cuponero eliminado correctamente.
+        '404':
+          description: Cuponero no encontrado.
+        '500':
+          description: Error interno del servidor.
+components:
+  schemas:
+    Cuponero:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+

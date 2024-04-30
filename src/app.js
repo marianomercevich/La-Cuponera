@@ -1,19 +1,23 @@
-/* import express from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
 // Importa las rutas de tu API
 import  userRoutes  from './routes/usersRoutes.js';
-import companyRoutes from './routes/companyRoutes.js';
-import DashboardEmpresaRoutes from './routes/DasboardEmpresaRoutes.js';
 
-import {MONGO_URI, MONGO_DB_NAME} from "./config/config.js";
 
+import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "../config/config.js";
+
+// iportacion para la doc
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 // Configuración de Express
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const swaggerDocument = YAML.load('./doc/Cuponeros.yaml'); // Ruta a tu archivo de especificación Swagger
 
 // Middleware
 app.use(bodyParser.json());
@@ -23,15 +27,14 @@ app.use(express.json());
 
 
 // Conexión a MongoDB 
-mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME}`)
+mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .then(() => console.log('Conexión a MongoDB establecida'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas de la API
-app.use('/api/users', userRoutes);
-app.use('/api/companies', companyRoutes);
-app.use('/api/dashboardempresa', DashboardEmpresaRoutes);
+app.use('/api/cuponeros', userRoutes);
 
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 // Manejo de rutas no encontradas
@@ -55,4 +58,3 @@ app.use((error, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor Express corriendo en el puerto ${PORT}`);
 });
- */
