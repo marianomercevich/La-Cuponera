@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { loginUser, registerUser } from '../controllers/userAuthController.js';
-import User from '../models/user.js';
+import { loginUser, registerUser } from '../controllers/vendedorAuthController.js';
+import User from '../models/Vendedores.js';
 
 const router = express.Router();
 

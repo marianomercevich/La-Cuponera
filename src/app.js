@@ -32,7 +32,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas de la API
-app.use('/api/cuponeros', userRoutes);
+app.use('/api/vendedores', userRoutes);
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

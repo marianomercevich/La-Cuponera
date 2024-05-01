@@ -1,37 +1,40 @@
 openapi: 3.0.0
 info:
-  title: Documentación de la API de Cuponeros
+  title: Documentación de la API de "la cuponera" seccion vendedores
   version: 1.0.0
 paths:
-  /api/Cuponeros:
+  /api/vendedores:
     get:
-      summary: Obtener todos los cuponeros
+      summary: Obtener todos los vendedores
       responses:
         '200':
-          description: Éxito. Retorna una lista de cuponeros.
+          description: Éxito. Retorna una lista de vendedores
+      responses:
+        '200':
+          description: Éxito. Retorna una lista de vendedores.
         '500':
           description: Error interno del servidor.
     post:
-      summary: Crear un nuevo cuponero
+      summary: Crear un nuevo vendedor
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cuponero'
+              $ref: '#/components/schemas/vendedor'
       responses:
         '201':
-          description: Cuponero creado correctamente.
+          description: vendedor creado correctamente.
         '500':
           description: Error interno del servidor.
-  /api/Cuponeros/{id}:
+  /api/vendedores/{id}:
     put:
-      summary: Actualizar un cuponero existente
+      summary: Actualizar un vendedor existente
       parameters:
         - in: path
           name: id
           required: true
-          description: ID del cuponero a actualizar
+          description: ID del vendedor a actualizar
           schema:
             type: string
       requestBody:
@@ -39,33 +42,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cuponero'
+              $ref: '#/components/schemas/vendedor'
       responses:
         '200':
-          description: Cuponero actualizado correctamente.
+          description: vendedor actualizado correctamente.
         '404':
-          description: Cuponero no encontrado.
+          description: vendedor no encontrado.
         '500':
           description: Error interno del servidor.
     delete:
-      summary: Eliminar un cuponero existente
+      summary: Eliminar un vendedor existente
       parameters:
         - in: path
           name: id
           required: true
-          description: ID del cuponero a eliminar
+          description: ID del vendedor a eliminar
           schema:
             type: string
       responses:
         '200':
-          description: Cuponero eliminado correctamente.
+          description: vendedor eliminado correctamente.
         '404':
-          description: Cuponero no encontrado.
+          description: vendedor no encontrado.
         '500':
           description: Error interno del servidor.
 components:
   schemas:
-    Cuponero:
+    vendedor:
       type: object
       properties:
         firstName:

@@ -1,33 +1,33 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import Vendedor from '../models/Vendedores';
 
 // Función para manejar el login de usuarios
-export const loginUser = async (req, res) => {
+export const loginVendedor = async (req, res) => {
     const { email, password } = req.body;
 
     try {
         // Buscar el usuario en la base de datos por su email
-        const user = await User.findOne({ email });
+        const vendedor = await Vendedor.findOne({ email });
 
         // Verificar si el usuario existe y si la contraseña es válida
-        if (!user || !bcrypt.compareSync(password, user.password)) {
+        if (!vendedor || !bcrypt.compareSync(password, vendedor.password)) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
         // Generar un token de autenticación
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ vendedorId: vendedor._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
 
         // Devolver el token como respuesta
         res.status(200).json({ token });
     } catch (error) {
-        console.error('Error en loginUser:', error);
+        console.error('Error en loginVendedor:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
 
 // Función para manejar el registro de usuarios
-export const registerUser = async (req, res) => {
+export const registerVendedor = async (req, res) => {
     const { id,
         nombre,
         apellido,
@@ -38,13 +38,13 @@ export const registerUser = async (req, res) => {
 
     try {
         // Verificar si el email ya está en uso
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
+        const existingVendedor = await Vendedor.findOne({ email });
+        if (existingVendedor) {
             return res.status(400).json({ message: 'El email ya está registrado' });
         }
 
         // Crear un nuevo usuario
-        const newUser = new User({
+        const newVendedor = new Vendedor({
           id,
           nombre,
           apellido,
@@ -55,15 +55,15 @@ export const registerUser = async (req, res) => {
         });
 
         // Guardar el nuevo usuario en la base de datos
-        await newUser.save();
+        await newVendedor.save();
 
         // Generar un token de autenticación
-        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ vendedorId: newVendedor._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
 
         // Devolver el token como respuesta
         res.status(201).json({ token });
     } catch (error) {
-        console.error('Error en registerUser:', error);
+        console.error('Error en registerVendedor:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
