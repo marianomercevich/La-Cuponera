@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   contraseña: { type: String, required: true },
   registroFecha: {type: String, required: true },
-  estadoVerificacion:{type: String, required: true }
+  estadoVerificacion: { type: String, required: true, enum: ['Pendiente', 'Aprobada', 'Desaprobada'] }, 
 });
 
 // Exportar el modelo de usuario basado en el esquema
