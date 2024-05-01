@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { loginUser, registerUser } from '../controllers/vendedorAuthController.js';
+import { loginVendedor, registerVendedor } from '../controllers/vendedorAuthController.js';
 import Vendedor from '../models/Vendedores.js';
 
 const router = express.Router();
@@ -34,18 +34,26 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     // Hashear la contraseña antes de guardarla en la base de datos
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.contraseña, 10);
 
     // Crear un nuevo usuario
     const newVendedor = new Vendedor({
 
       id: req.body.id,
-      nombre: req.body.nombre,
-      apellido: req.body.apellido,
+      nombreTienda: req.body.nombreTienda,
+      dirTiendaFisica: req.body.dirTiendaFisica, 
+      telefono: req.body.telefono,
+      descripcion: req.body.descripcion,
       email: req.body.email,
       contraseña: hashedPassword,
       registroFecha: req.body.registroFecha, 
-      estadoVerificacion: req.body.estadoVerificacion
+      estadoVerificacion: req.body.estadoVerificacion,
+      redesSociales: req.body.redesSociales,
+      paginaWeb: req.body.paginaWeb, 
+      horariosTiendaFisica: req.body.horariosTiendaFisica, 
+      representanteLegal: req.body.representanteLegal, 
+      Nit: req.body.Nit, 
+      categorias: req.body.categorias
     });
 
     // Guardar el usuario en la base de datos
@@ -61,9 +69,9 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     // Verificar si se proporcionó una nueva contraseña en la solicitud
-    if (req.body.password) {
+    if (req.body.contraseña) {
       // Hashear la nueva contraseña
-      req.body.password = await bcrypt.hash(req.body.password, 10);
+      req.body.contraseña = await bcrypt.hash(req.body.contraseña, 10);
     }
 
     // Actualizar la empresa en la base de datos
@@ -95,7 +103,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Rutas para la autenticación de usuarios
-router.post('/login', loginUser);
-router.post('/register', registerUser);
+router.post('/login', loginVendedor);
+router.post('/register', registerVendedor);
 
 export default router;

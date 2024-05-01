@@ -1,14 +1,11 @@
 openapi: 3.0.0
 info:
-  title: Documentación de la API de "la cuponera" seccion vendedores
+  title: Documentación de la API de "la cuponera" sección vendedores
   version: 1.0.0
 paths:
   /api/vendedores:
     get:
       summary: Obtener todos los vendedores
-      responses:
-        '200':
-          description: Éxito. Retorna una lista de vendedores
       responses:
         '200':
           description: Éxito. Retorna una lista de vendedores.
@@ -21,10 +18,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/vendedor'
+              $ref: '#/components/schemas/Vendedor'
       responses:
         '201':
-          description: vendedor creado correctamente.
+          description: Vendedor creado correctamente.
         '500':
           description: Error interno del servidor.
   /api/vendedores/{id}:
@@ -42,12 +39,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/vendedor'
+              $ref: '#/components/schemas/Vendedor'
       responses:
         '200':
-          description: vendedor actualizado correctamente.
+          description: Vendedor actualizado correctamente.
         '404':
-          description: vendedor no encontrado.
+          description: Vendedor no encontrado.
         '500':
           description: Error interno del servidor.
     delete:
@@ -61,22 +58,68 @@ paths:
             type: string
       responses:
         '200':
-          description: vendedor eliminado correctamente.
+          description: Vendedor eliminado correctamente.
         '404':
-          description: vendedor no encontrado.
+          description: Vendedor no encontrado.
         '500':
           description: Error interno del servidor.
 components:
   schemas:
-    vendedor:
+    Vendedor:
       type: object
       properties:
-        firstName:
+        id:
+          type: integer
+          format: int64
+        nombreTienda:
           type: string
-        lastName:
+        dirTiendaFisica:
+          type: string
+        telefono:
+          type: integer
+          format: int64
+        descripcion:
           type: string
         email:
           type: string
-        password:
+          format: email
+        contraseña:
           type: string
-
+        registroFecha:
+          type: string
+          format: date
+        estadoVerificacion:
+          type: string
+          enum:
+            - Pendiente
+            - Aprobada
+            - Desaprobada
+        redesSociales:
+          type: object
+        paginaWeb:
+          type: string
+        horariosTiendaFisica:
+          type: object
+        representanteLegal:
+          type: string
+        Nit:
+          type: integer
+          format: int64
+        categorias:
+          type: object
+      required:
+        - id
+        - nombreTienda
+        - dirTiendaFisica
+        - telefono
+        - descripcion
+        - email
+        - contraseña
+        - registroFecha
+        - estadoVerificacion
+        - redesSociales
+        - paginaWeb
+        - horariosTiendaFisica
+        - representanteLegal
+        - Nit
+        - categorias

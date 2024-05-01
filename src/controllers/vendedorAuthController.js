@@ -1,17 +1,17 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import Vendedor from '../models/Vendedores';
+import Vendedor from '../models/Vendedores.js';
 
 // Función para manejar el login de usuarios
 export const loginVendedor = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, contraseña } = req.body;
 
     try {
         // Buscar el usuario en la base de datos por su email
         const vendedor = await Vendedor.findOne({ email });
 
         // Verificar si el usuario existe y si la contraseña es válida
-        if (!vendedor || !bcrypt.compareSync(password, vendedor.password)) {
+        if (!vendedor || !bcrypt.compareSync(contraseña, vendedor.contraseña)) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
@@ -28,13 +28,21 @@ export const loginVendedor = async (req, res) => {
 
 // Función para manejar el registro de usuarios
 export const registerVendedor = async (req, res) => {
-    const { id,
-        nombre,
-        apellido,
+    const {           id,
+        nombreTienda,
+        dirTiendaFisica,
+        telefono,
+        descripcion,
         email,
         contraseña,
         registroFecha,
-        estadoVerificacion } = req.body;
+        estadoVerificacion, 
+        redesSociales,
+        paginaWeb, 
+        horariosTiendaFisica, 
+        representanteLegal, 
+        Nit, 
+        categorias} = req.body;
 
     try {
         // Verificar si el email ya está en uso
@@ -46,12 +54,21 @@ export const registerVendedor = async (req, res) => {
         // Crear un nuevo usuario
         const newVendedor = new Vendedor({
           id,
-          nombre,
-          apellido,
+          nombreTienda,
+          dirTiendaFisica,
+          telefono,
+          descripcion,
           email,
           contraseña: bcrypt.hashSync(contraseña, 10),
           registroFecha,
-          estadoVerificacion
+          estadoVerificacion, 
+          redesSociales,
+          paginaWeb, 
+          horariosTiendaFisica, 
+          representanteLegal, 
+          Nit, 
+          categorias
+
         });
 
         // Guardar el nuevo usuario en la base de datos
