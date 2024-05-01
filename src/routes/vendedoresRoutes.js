@@ -1,15 +1,15 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import { loginUser, registerUser } from '../controllers/vendedorAuthController.js';
-import User from '../models/Vendedores.js';
+import Vendedor from '../models/Vendedores.js';
 
 const router = express.Router();
 
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
+    const vendedor = await Vendedor.find();
+    res.json(vendedor);
   } catch (err) {
     console.error('Error al obtener usuarios:', err);
     res.status(500).send('Error interno del servidor');
@@ -19,11 +19,11 @@ router.get('/', async (req, res) => {
 // Obtener un usuario por su ID
 router.get('/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
+    const vendedor = await Vendedor.findById(req.params.id);
+    if (!vendedor) {
       return res.status(404).send('Usuario no encontrado');
     }
-    res.json(user);
+    res.json(vendedor);
   } catch (err) {
     console.error('Error al obtener usuario por ID:', err);
     res.status(500).send('Error interno del servidor');
@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     // Crear un nuevo usuario
-    const newUser = new User({
+    const newVendedor = new Vendedor({
 
       id: req.body.id,
       nombre: req.body.nombre,
@@ -49,8 +49,8 @@ router.post('/', async (req, res) => {
     });
 
     // Guardar el usuario en la base de datos
-    await newUser.save();
-    res.status(201).json(newUser);
+    await newVendedor.save();
+    res.status(201).json(newVendedor);
   } catch (err) {
     console.error('Error al crear usuario:', err);
     res.status(500).send('Error interno del servidor');
@@ -67,12 +67,12 @@ router.put('/:id', async (req, res) => {
     }
 
     // Actualizar la empresa en la base de datos
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const vendedor = await Vendedor.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
-    if (!user) {
+    if (!vendedor) {
       return res.status(404).send('Usuario no encontrado');
     }
-    res.json(user);
+    res.json(vendedor);
   } catch (err) {
     console.error('Error al actualizar usuario:', err);
     res.status(500).send('Error interno del servidor');
@@ -83,8 +83,8 @@ router.put('/:id', async (req, res) => {
 // Eliminar un usuario
 router.delete('/:id', async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
+    const vendedor = await Vendedor.findByIdAndDelete(req.params.id);
+    if (!vendedor) {
       return res.status(404).send('Usuario no encontrado');
     }
     res.json({ message: 'Usuario eliminado correctamente' });

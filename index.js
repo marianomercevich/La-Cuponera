@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 
 // Importa las rutas de tu API
-import  userRoutes  from './src/routes/usersRoutes.js';
+import  vendedorRoutes  from './src/routes/vendedoresRoutes.js';
 import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "./src/config/config.js";
 
 // iportacion para la doc
@@ -15,7 +15,7 @@ import YAML from 'yamljs';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const swaggerDocument = YAML.load('./src/doc/Cuponeros.yaml'); // Ruta a tu archivo de especificación Swagger
+const swaggerDocument = YAML.load('./src/doc/vendedores.yaml'); // Ruta a tu archivo de especificación Swagger
 
 // Middleware
 app.use(bodyParser.json());
@@ -30,7 +30,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas de la API
-app.use('/api/vendedores', userRoutes);
+app.use('/api/vendedores', vendedorRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //agregar rutas faltantes
 
