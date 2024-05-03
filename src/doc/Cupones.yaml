@@ -16,9 +16,36 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:    # Cambia el tipo de contenido a 'multipart/form-data' para la carga de archivos
             schema:
-              $ref: '#/components/schemas/Cupon'
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Título del cupón.
+                description:
+                  type: string
+                  description: Descripción del cupón.
+                discount:
+                  type: number
+                  description: Descuento aplicable al cupón.
+                location:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      description: Latitud de la ubicación del cupón.
+                    longitude:
+                      type: number
+                      description: Longitud de la ubicación del cupón.
+                  description: Coordenadas geográficas de la ubicación del cupón.
+                expirationDate:
+                  type: string
+                  format: date
+                  description: Fecha de vencimiento del cupón en formato ISO 8601.
+                image:
+                  type: string
+                  format: binary     # Indica que el campo 'image' es binario (archivo)
       responses:
         '201':
           description: Cupón creado correctamente.
