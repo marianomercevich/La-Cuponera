@@ -30,7 +30,8 @@
         "nodemailer-smtp-transport": "^2.7.4",
         "path": "^0.12.7",
         "speakeasy": "^2.0.0",
-        "uuid": "^8.3.2"
+        "uuid": "^8.3.2",
+        "vercel": "^34.1.13"
     },
     "devDependencies": {
         "prisma": "^5.8.1",
