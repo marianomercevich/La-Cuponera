@@ -14,7 +14,7 @@ import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/
 const app = express();
 const PORT = process.env.PORT || 5100;
 
-const swaggerDocument = YAML.load('./src/doc/Cupones.yaml'); // Ruta a tu archivo de especificación Swagger
+const swaggerDocument = YAML.load/* ('./src/doc/Cupones.yaml') */; // Ruta a tu archivo de especificación Swagger
 
 // Middleware
 app.use(bodyParser.json());
