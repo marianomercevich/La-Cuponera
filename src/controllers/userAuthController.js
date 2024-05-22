@@ -30,8 +30,7 @@ export const registerUser = async (req, res) => {
     const { 
         nombre,
         apellido,
-        email,
-        password} = req.body;
+        email, password } = req.body;
         
         try {
             // Verificar si el email ya está en uso
@@ -46,7 +45,7 @@ export const registerUser = async (req, res) => {
           nombre,
           apellido,
           email,
-          password: bcrypt.hashSync(contraseña, 10),
+          password: bcrypt.hashSync(password, 10),
 
         });
         
