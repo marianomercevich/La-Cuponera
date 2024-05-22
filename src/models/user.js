@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   nombre: { type: String, required: true },
   apellido: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  contraseña: { type: String, required: true },
+  password: { type: String, required: true },
   registroFecha: {type: String, required: false },
   estadoVerificacion: { type: String, required: false, enum: ['Pendiente', 'Aprobada', 'Desaprobada'] }, 
 });

@@ -11,7 +11,7 @@ export const loginUser = async (req, res) => {
         const user = await User.findOne({ email });
 
         // Verificar si el usuario existe y si la contraseña es válida
-        if (!user || !user.password || !bcrypt.compareSync(password, user.password)) {
+        if (!user || !bcrypt.compareSync(password, user.password)) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
@@ -31,7 +31,7 @@ export const registerUser = async (req, res) => {
         nombre,
         apellido,
         email,
-        contraseña} = req.body;
+        password} = req.body;
         
         try {
             // Verificar si el email ya está en uso
@@ -46,7 +46,7 @@ export const registerUser = async (req, res) => {
           nombre,
           apellido,
           email,
-          contraseña: bcrypt.hashSync(contraseña, 10),
+          password: bcrypt.hashSync(contraseña, 10),
 
         });
         
