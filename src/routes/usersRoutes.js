@@ -34,18 +34,19 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     // Hashear la contraseña antes de guardarla en la base de datos
+    if (!req.body.password) {
+      return res.status(400).json({ message: 'La contraseña es requerida' });
+    }
+
+    // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     // Crear un nuevo usuario
     const newUser = new User({
-
-      id: req.body.id,
       nombre: req.body.nombre,
       apellido: req.body.apellido,
       email: req.body.email,
-      contraseña: hashedPassword,
-      registroFecha: req.body.registroFecha, 
-      estadoVerificacion: req.body.estadoVerificacion
+      contraseña: hashedPassword, // Utiliza la contraseña hasheada
     });
 
     // Guardar el usuario en la base de datos
