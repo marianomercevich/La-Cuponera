@@ -17,7 +17,7 @@ import YAML from 'yamljs';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const swaggerDocument = YAML.load('./doc/Cuponeros.yaml'); // Ruta a tu archivo de especificación Swagger
+const swaggerDocument = YAML.load('./src/doc/Cuponeros.yaml'); // Ruta a tu archivo de especificación Swagger
 
 // Middleware
 app.use(bodyParser.json());
