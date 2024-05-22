@@ -1,0 +1,216 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Documentación de la API de Cupones",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/cupones": {
+      "get": {
+        "summary": "Obtener todos los cupones",
+        "responses": {
+          "200": {
+            "description": "Éxito. Retorna una lista de cupones."
+          },
+          "500": {
+            "description": "Error interno del servidor."
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo cupón",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Título del cupón."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Descripción del cupón."
+                  },
+                  "discount": {
+                    "type": "number",
+                    "description": "Descuento aplicable al cupón."
+                  },
+                  "location": {
+                    "type": "object",
+                    "properties": {
+                      "latitude": {
+                        "type": "number",
+                        "description": "Latitud de la ubicación del cupón."
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "description": "Longitud de la ubicación del cupón."
+                      }
+                    },
+                    "description": "Coordenadas geográficas de la ubicación del cupón."
+                  },
+                  "expirationDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Fecha de vencimiento del cupón en formato ISO 8601."
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Archivo de imagen del cupón."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cupón creado correctamente."
+          },
+          "500": {
+            "description": "Error interno del servidor."
+          }
+        }
+      }
+    },
+    "/api/cupones/{id}": {
+      "get": {
+        "summary": "Obtener un cupón por su ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Éxito. Retorna el cupón solicitado."
+          },
+          "404": {
+            "description": "Cupón no encontrado."
+          },
+          "500": {
+            "description": "Error interno del servidor."
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar un cupón existente por su ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cupon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cupón actualizado correctamente."
+          },
+          "404": {
+            "description": "Cupón no encontrado."
+          },
+          "500": {
+            "description": "Error interno del servidor."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un cupón por su ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cupón eliminado correctamente."
+          },
+          "404": {
+            "description": "Cupón no encontrado."
+          },
+          "500": {
+            "description": "Error interno del servidor."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cupon": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Título del cupón."
+          },
+          "description": {
+            "type": "string",
+            "description": "Descripción del cupón."
+          },
+          "discount": {
+            "type": "number",
+            "description": "Descuento aplicable al cupón."
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "description": "Latitud de la ubicación del cupón."
+              },
+              "longitude": {
+                "type": "number",
+                "description": "Longitud de la ubicación del cupón."
+              }
+            },
+            "description": "Coordenadas geográficas de la ubicación del cupón."
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Fecha de vencimiento del cupón en formato ISO 8601."
+          },
+          "imagePath": {
+            "type": "string",
+            "description": "Ruta de la imagen asociada al cupón."
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "discount",
+          "location",
+          "expirationDate"
+        ]
+      }
+    }
+  }
+}
