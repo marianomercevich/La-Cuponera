@@ -2,19 +2,16 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-
-// Importa las rutas de tu API
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import  vendedorRoutes  from './src/routes/vendedoresRoutes.js';
 import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "./src/config/config.js";
 
-// iportacion para la doc
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
 
 // Configuración de Express
 const app = express();
 const PORT = process.env.PORT || 5000;
-const swaggerDocument = YAML.load /*('./src/doc/Vendedores')*/;// por alguna razon si la descoemto, se cae el proyecto en vercel   Ruta a tu archivo de especificación Swagger
+const swaggerDocument = YAML.load('./src/doc/Vendedores.yaml');// por alguna razon si la descoemto, se cae el proyecto en vercel   Ruta a tu archivo de especificación Swagger
 
 // Middleware
 app.use(bodyParser.json());
