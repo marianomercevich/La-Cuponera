@@ -29,7 +29,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
 // Rutas de la API
 app.use('/api/cupones', cuponesRoutes);
 
-const swaggerDocumentPath = './public/doc/cupones.json';
+const swaggerDocumentPath = './src/doc/cupones.json';
 let swaggerDocument;
 try {
   console.log('Intentando leer el archivo JSON de Swagger...');
