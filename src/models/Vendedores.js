@@ -17,6 +17,7 @@ const vendedorSchema = new mongoose.Schema({
   representanteLegal: { type: String, required: true }, 
   Nit: { type: Number, required: true  },  // Número de Identificación Tributaria del vendedor
   categorias: { type: Object, required: false } // Categorías a las que pertenece el vendedor y sus detalles asociados (podría ser un objeto con nombres de categorías y detalles adicionales)
+  // faltaria la geolocalizacion
 });
 
 // Exportar el modelo de usuario basado en el esquema

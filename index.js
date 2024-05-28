@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import  vendedorRoutes  from './src/routes/vendedoresRoutes.js';
 import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "./src/config/config.js";
+import nodemailer from 'nodemailer'
 
 
 // Configuración de Express
