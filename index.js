@@ -5,8 +5,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import  vendedorRoutes  from './src/routes/vendedoresRoutes.js';
-import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "./src/config/config.js";
-import nodemailer from 'nodemailer'
+import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "./src/config/config.js"
 
 
 // Configuración de Express
