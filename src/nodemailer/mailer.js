@@ -3,101 +3,90 @@ import Mailgen from "mailgen";
 import { NODEMAILER_PASS, NODEMAILER_USER } from "../../config/config.js";
 import { devLogger } from "../../utils/logger.js";
 
-export const sendEmailRegister = async (userEmail) => {
-  let config = {
-    service: "gmail",
-    auth: {
-      user: NODEMAILER_USER,
-      pass: NODEMAILER_PASS,
-    },
-  };
+const configuracionTransporter = {
+  service: "gmail",
+  auth: {
+    user: NODEMAILER_USER,
+    pass: NODEMAILER_PASS,
+  },
+};
 
-  let transporter = nodemailer.createTransport(config);
+const crearTransporter = () => nodemailer.createTransport(configuracionTransporter);
 
-  let Mailgenerator = new Mailgen({
-    theme: "default",
-    product: {
-      name: "La Cuponera",
-      link: "http://localhost:8080",
-    },
-  });
+const configuracionMailGenerator = {
+  theme: "default",
+  product: {
+    name: "La Cuponera",
+    link: "http://localhost:5000",
+  },
+};
 
-  let content = {
+const mailGenerator = new Mailgen(configuracionMailGenerator);
+
+export const enviarCorreoRegistro = async (usuarioEmail, token) => {
+  const transporter = crearTransporter();
+
+  const contenido = {
     body: {
-      name: userEmail.full_name,
+      name: usuarioEmail.full_name,
       intro: `¡Bienvenido a La Cuponera! Gracias por registrarte en nuestra plataforma.`,
-      outro: `¡Puedes iniciar sesión colocando este token en la aplicación para empezar a utilizar nuestros cupones!`,
+      outro: `¡Puedes iniciar sesión colocando este token (${token}) en la aplicación para empezar a utilizar nuestros cupones!`,
       signature: false,
     },
   };
 
-  let mail = Mailgenerator.generate(content);
+  const correo = mailGenerator.generate(contenido);
 
-  let message = {
+  const mensaje = {
     from: NODEMAILER_USER,
-    to: userEmail.email,
+    to: usuarioEmail.email,
     subject: "¡Bienvenido a La Cuponera!",
-    html: mail,
+    html: correo,
   };
+
   try {
-    const email = await transporter.sendMail(message);
+    const email = await transporter.sendMail(mensaje);
     return email;
   } catch (error) {
-    devLogger.error(error);
+    devLogger.error(`Error enviando correo de registro a ${usuarioEmail.email}: ${error.message}`);
     throw error;
   }
 };
 
-export const emailResetPassword = async (userEmail, tokenLink) => {
-  let config = {
-    service: "gmail",
-    auth: {
-      user: NODEMAILER_USER,
-      pass: NODEMAILER_PASS,
-    },
-  };
-  let transporter = nodemailer.createTransport(config);
+export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink) => {
+  const transporter = crearTransporter();
 
-  let Mailgenerator = new Mailgen({
-    theme: "default",
-    product: {
-      name: "La Cuponera",
-      link: "http://localhost:8080",
-    },
-  });
-
-  let content = {
+  const contenido = {
     body: {
-      name: `${userEmail.full_name}`,
-      intro:
-        "Has recibido este correo electrónico porque se recibió una solicitud para restablecer la contraseña de tu cuenta.",
+      name: usuarioEmail.full_name,
+      intro: "Has recibido este correo electrónico porque se recibió una solicitud para restablecer la contraseña de tu cuenta.",
       action: {
         instructions: "Haz clic en el siguiente botón para restablecer tu contraseña:",
         button: {
           color: "#DC4D2F",
           text: "Restablecer tu contraseña",
-          link: `http://localhost:8080/api/jwt/passwordReset/${tokenLink}`,
+          link: `http://localhost:5000/api/jwt/passwordReset/${tokenLink}`,
         },
       },
-      outro:
-        "Si no solicitaste restablecer tu contraseña, no es necesario que realices ninguna otra acción.",
+      outro: "Si no solicitaste restablecer tu contraseña, no es necesario que realices ninguna otra acción.",
       signature: false,
     },
   };
 
-  let mail = Mailgenerator.generate(content);
+  const correo = mailGenerator.generate(contenido);
 
-  let message = {
+  const mensaje = {
     from: NODEMAILER_USER,
-    to: userEmail.email,
+    to: usuarioEmail.email,
     subject: "Correo de recuperación de contraseña",
-    html: mail,
+    html: correo,
   };
+
   try {
-    const email = await transporter.sendMail(message);
+    const email = await transporter.sendMail(mensaje);
     return email;
   } catch (error) {
-    devLogger.error(error);
+    devLogger.error(`Error enviando correo de restablecimiento de contraseña a ${usuarioEmail.email}: ${error.message}`);
     throw error;
   }
 };

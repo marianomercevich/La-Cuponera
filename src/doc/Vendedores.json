@@ -1,0 +1,187 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Documentación de la API de 'la cuponera' sección vendedores",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/api/vendedores": {
+        "get": {
+          "summary": "Obtener todos los vendedores",
+          "responses": {
+            "200": {
+              "description": "Éxito. Retorna una lista de vendedores."
+            },
+            "500": {
+              "description": "Error interno del servidor."
+            }
+          }
+        },
+        "post": {
+          "summary": "Crear un nuevo vendedor",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vendedor"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Vendedor creado correctamente."
+            },
+            "500": {
+              "description": "Error interno del servidor."
+            }
+          }
+        }
+      },
+      "/api/vendedores/{id}": {
+        "put": {
+          "summary": "Actualizar un vendedor existente",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "ID del vendedor a actualizar",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vendedor"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Vendedor actualizado correctamente."
+            },
+            "404": {
+              "description": "Vendedor no encontrado."
+            },
+            "500": {
+              "description": "Error interno del servidor."
+            }
+          }
+        },
+        "delete": {
+          "summary": "Eliminar un vendedor existente",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "ID del vendedor a eliminar",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Vendedor eliminado correctamente."
+            },
+            "404": {
+              "description": "Vendedor no encontrado."
+            },
+            "500": {
+              "description": "Error interno del servidor."
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Vendedor": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "nombreTienda": {
+              "type": "string"
+            },
+            "dirTiendaFisica": {
+              "type": "string"
+            },
+            "telefono": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "descripcion": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "contraseña": {
+              "type": "string"
+            },
+            "registroFecha": {
+              "type": "string",
+              "format": "date"
+            },
+            "estadoVerificacion": {
+              "type": "string",
+              "enum": [
+                "Pendiente",
+                "Aprobada",
+                "Desaprobada"
+              ]
+            },
+            "redesSociales": {
+              "type": "object"
+            },
+            "paginaWeb": {
+              "type": "string"
+            },
+            "horariosTiendaFisica": {
+              "type": "string"
+            },
+            "representanteLegal": {
+              "type": "string"
+            },
+            "Nit": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "categorias": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "id",
+            "nombreTienda",
+            "dirTiendaFisica",
+            "telefono",
+            "descripcion",
+            "email",
+            "contraseña",
+            "registroFecha",
+            "estadoVerificacion",
+            "redesSociales",
+            "paginaWeb",
+            "horariosTiendaFisica",
+            "representanteLegal",
+            "Nit",
+            "categorias"
+          ]
+        }
+      }
+    }
+  }
+  

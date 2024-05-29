@@ -21,8 +21,8 @@ const vendedorSchema = new mongoose.Schema({
   portada:{}, //file
   logo: {}, //file
   seguidores: {}, //lista de seguidores (id)
-  type:{}//vendedor
-  //geolocalizacion segun su direccion
+  type:{}, //vendedor
+  geolocalizacion:{} //geolocalizacion segun su direccion
 
 });
 
