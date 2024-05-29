@@ -26,7 +26,7 @@ export const sendEmailRegister = async (userEmail) => {
     body: {
       name: userEmail.full_name,
       intro: `¡Bienvenido a La Cuponera! Gracias por registrarte en nuestra plataforma.`,
-      outro: `¡Puedes iniciar sesión en la aplicación para empezar a utilizar nuestros cupones!`,
+      outro: `¡Puedes iniciar sesión colocando este token en la aplicación para empezar a utilizar nuestros cupones!`,
       signature: false,
     },
   };

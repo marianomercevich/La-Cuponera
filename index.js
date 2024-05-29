@@ -5,6 +5,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import  vendedorRoutes  from './src/routes/vendedoresRoutes.js';
+import uploadRoutes from './src/routes/uploadRotes.js';
 import {MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST} from "./src/config/config.js"
 
 
@@ -28,7 +29,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
 // Rutas de la API
 app.use('/api/vendedores', vendedorRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-//agregar rutas faltantes
+app.use('/upload', uploadRoutes);
 
 
 // Manejo de rutas no encontradas
