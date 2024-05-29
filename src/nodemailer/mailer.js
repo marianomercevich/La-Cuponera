@@ -1,13 +1,20 @@
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
-import { NODEMAILER_PASS, NODEMAILER_USER } from "../../config/config.js";
-import { devLogger } from "../../utils/logger.js";
+
+// Función para generar un token de validación simple
+const generarTokenValidacion = () => {
+  const timestamp = Date.now().toString(); // Usamos la marca de tiempo actual como base del token
+  const token = timestamp.substring(timestamp.length - 6); // Tomamos los últimos 6 dígitos de la marca de tiempo
+  return token;
+};
 
 const configuracionTransporter = {
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: NODEMAILER_USER,
-    pass: NODEMAILER_PASS,
+    user: "maritodev81@gmail.com",
+    pass: "kwkt eiyc sdcc biuh",
   },
 };
 
@@ -17,20 +24,22 @@ const configuracionMailGenerator = {
   theme: "default",
   product: {
     name: "La Cuponera",
-    link: "http://localhost:5000",
+    link: "https://lacuponera.app/",
   },
 };
 
 const mailGenerator = new Mailgen(configuracionMailGenerator);
 
-export const enviarCorreoRegistro = async (usuarioEmail, token) => {
+export const enviarCorreoRegistro = async (usuarioEmail) => {
   const transporter = crearTransporter();
+
+  const tokenValidacion = generarTokenValidacion(); // Generar el token de validación
 
   const contenido = {
     body: {
       name: usuarioEmail.full_name,
       intro: `¡Bienvenido a La Cuponera! Gracias por registrarte en nuestra plataforma.`,
-      outro: `¡Puedes iniciar sesión colocando este token (${token}) en la aplicación para empezar a utilizar nuestros cupones!`,
+      outro: `¡Puedes iniciar sesión colocando este token de validación (${tokenValidacion}) en la aplicación para empezar a utilizar nuestros cupones!`,
       signature: false,
     },
   };
@@ -38,7 +47,7 @@ export const enviarCorreoRegistro = async (usuarioEmail, token) => {
   const correo = mailGenerator.generate(contenido);
 
   const mensaje = {
-    from: NODEMAILER_USER,
+    from: "maritodev81@gmail.com",
     to: usuarioEmail.email,
     subject: "¡Bienvenido a La Cuponera!",
     html: correo,
@@ -48,10 +57,11 @@ export const enviarCorreoRegistro = async (usuarioEmail, token) => {
     const email = await transporter.sendMail(mensaje);
     return email;
   } catch (error) {
-    devLogger.error(`Error enviando correo de registro a ${usuarioEmail.email}: ${error.message}`);
+    console.error(`Error enviando correo de registro a ${usuarioEmail.email}: ${error.message}`);
     throw error;
   }
 };
+
 
 export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink) => {
   const transporter = crearTransporter();
@@ -76,7 +86,7 @@ export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink
   const correo = mailGenerator.generate(contenido);
 
   const mensaje = {
-    from: NODEMAILER_USER,
+    from: "maritodev81@gmail.com",
     to: usuarioEmail.email,
     subject: "Correo de recuperación de contraseña",
     html: correo,
@@ -86,7 +96,7 @@ export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink
     const email = await transporter.sendMail(mensaje);
     return email;
   } catch (error) {
-    devLogger.error(`Error enviando correo de restablecimiento de contraseña a ${usuarioEmail.email}: ${error.message}`);
+    error(`Error enviando correo de restablecimiento de contraseña a ${usuarioEmail.email}: ${error.message}`);
     throw error;
   }
 };
