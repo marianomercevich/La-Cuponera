@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import vendedorRoutes from './src/routes/vendedoresRoutes.js';
@@ -12,10 +13,9 @@ import mysql from 'mysql';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Cargar el archivo JSON de Swagger
-const swaggerDocument = JSON.parse(fs.readFileSync('./src/doc/Vendedores.json', 'utf8'));
 
 // Middleware
+app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -59,10 +59,26 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .then(() => console.log('Conexión a MongoDB establecida'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
+  const swaggerDocumentPath = 'src/doc/Vendedores.json';
+  let swaggerDocument;
+  try {
+    console.log('Intentando leer el archivo JSON de Swagger...');
+    const rawData = fs.readFileSync(swaggerDocumentPath);
+    swaggerDocument = JSON.parse(rawData);
+    console.log('Archivo JSON de Swagger cargado correctamente:', swaggerDocument);
+  } catch (error) {
+    console.error('Error al cargar el archivo JSON de Swagger:', error);
+  }
+
 // Rutas de la API
 app.use('/api/vendedores', vendedorRoutes);
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/upload', uploadRoutes);
+// Usar Swagger UI
+if (swaggerDocument) {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} else {
+  console.error('No se pudo cargar el archivo JSON de Swagger.');
+}
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
