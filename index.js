@@ -1,21 +1,21 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
 import vendedorRoutes from './src/routes/vendedoresRoutes.js';
 import uploadRoutes from './src/routes/uploadRotes.js';
-import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from "./src/config/config.js";
+import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
+import fs from 'fs';
 import mysql from 'mysql';
 
 // Configuración de Express
 const app = express();
 const PORT = process.env.PORT || 5000;
-const swaggerDocument = JSON.parse(fs.readFileSync('./src/doc/Vendedores.json', 'utf8')); // Leer JSON desde archivo
+
+// Cargar el archivo JSON de Swagger
+const swaggerDocument = JSON.parse(fs.readFileSync('./src/doc/Vendedores.json', 'utf8'));
 
 // Middleware
-app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -66,7 +66,7 @@ app.use('/upload', uploadRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
-  const error = new Error('Ruta no encontrada');
+  const error = new Error('Ruta no encontrada app');
   error.status = 404;
   next(error);
 });
