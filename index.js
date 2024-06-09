@@ -7,7 +7,7 @@ import vendedorRoutes from './src/routes/vendedoresRoutes.js';
 import uploadRoutes from './src/routes/uploadRotes.js';
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 import fs from 'fs';
-import mysql from 'mysql';
+/* import mysql from 'mysql'; */
 
 // Configuración de Express
 const app = express();
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/public', express.static('public'));
 
-// Conexión a MySQL
+/* // Conexión a MySQL
 const conexion_App = mysql.createConnection({
   host: 'srv451.hstgr.io',
   database: 'u244509176_LaCuponeraApp',
@@ -52,7 +52,7 @@ conexion_Digital.connect(function(error) {
     console.log('CONEXIÓN A MYSQL_DIGITAL EXITOSA');
   }
 });
-conexion_Digital.end();
+conexion_Digital.end(); */
 
 // Conexión a MongoDB
 mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
@@ -72,7 +72,8 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
 
 // Rutas de la API
 app.use('/api/vendedores', vendedorRoutes);
-app.use('/upload', uploadRoutes);
+app.use('/api/upload', uploadRoutes);
+
 // Usar Swagger UI
 if (swaggerDocument) {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
