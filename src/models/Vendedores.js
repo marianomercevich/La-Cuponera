@@ -11,6 +11,9 @@ const vendedorSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true }, 
   contraseña: { type: String, required: true }, 
   registroFecha: {type: Date, default: Date.now,},
+  
+  segundoRegistro: {type: Boolean, default: false },
+    
   estadoVerificacion: {type: String, enum: ['Pendiente', 'Aprobada', 'Desaprobada'], required: false, default: 'Pendiente',},
   redesSociales: { type: String, required: false }, 
   paginaWeb: { type: String, required: false}, 
