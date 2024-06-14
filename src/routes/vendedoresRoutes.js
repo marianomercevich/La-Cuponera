@@ -5,15 +5,6 @@ import Vendedor from '../models/Vendedores.js';
 
 const router = express.Router();
 
-// Middleware para validar ObjectId
-const validateObjectId = (req, res, next) => {
-  const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send('ID inválido');
-  }
-  next();
-};
-
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
   try {
@@ -26,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 // Obtener un usuario por su ID
-router.get('/:id',  validateObjectId, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const vendedor = await Vendedor.findById(req.params.id);
     if (!vendedor) {
