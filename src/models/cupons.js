@@ -18,7 +18,7 @@ const couponSchema = new Schema({
     }
   },
   expirationDate: { type: Date, required: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Empresa' }, // Referencia al modelo de empresas creadoras de cupones
+  createdBy: { type: string, }, // Referencia al modelo de empresas creadoras de cupones
   createdAt: { type: Date, default: Date.now },
   imagePath: { type: String } // Campo para almacenar la ruta de la imagen
 });
