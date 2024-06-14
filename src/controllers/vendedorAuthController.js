@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Vendedor from '../models/Vendedores.js';
+import { enviarCorreoRegistro } from '../nodemailer/mailer.js';
 
 // Función para manejar el login de usuarios
 export const loginVendedor = async (req, res) => {
@@ -75,6 +76,12 @@ export const registerVendedor = async (req, res) => {
 
         // Guardar el nuevo usuario en la base de datos
         await newVendedor.save();
+        
+        // Enviar correo de registro
+        await enviarCorreoRegistro({
+          full_name: nombreTienda,
+          email: email,
+        });
 
         // Generar un token de autenticación
         const token = jwt.sign({ vendedorId: newVendedor._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
