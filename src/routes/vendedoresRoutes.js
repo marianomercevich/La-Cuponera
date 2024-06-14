@@ -8,7 +8,7 @@ const router = express.Router();
 // Middleware para validar ObjectId
 const validateObjectId = (req, res, next) => {
   const { id } = req.params;
-  if (id.length !== 24) { // Longitud esperada de ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send('ID inválido');
   }
   next();
@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 });
 
 // Obtener un usuario por su ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId, async (req, res) => {
   try {
     const vendedor = await Vendedor.findById(req.params.id);
     if (!vendedor) {
@@ -47,7 +47,6 @@ router.post('/', async (req, res) => {
 
     // Crear un nuevo usuario
     const newVendedor = new Vendedor({
-
       id: req.body.id,
       nombreTienda: req.body.nombreTienda,
       dirTiendaFisica: req.body.dirTiendaFisica, 
@@ -55,9 +54,7 @@ router.post('/', async (req, res) => {
       descripcion: req.body.descripcion,
       email: req.body.email,
       contraseña: hashedPassword,
-
       segundoRegistro: req.body.segundoRegistro,
-      
       registroFecha: req.body.registroFecha, 
       estadoVerificacion: req.body.estadoVerificacion,
       redesSociales: req.body.redesSociales,
@@ -77,8 +74,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-router.put('/:id', async (req, res) => {
+// Actualizar un usuario
+router.put('/:id', validateObjectId, async (req, res) => {
   try {
     // Verificar si se proporcionó una nueva contraseña en la solicitud
     if (req.body.contraseña) {
@@ -86,7 +83,7 @@ router.put('/:id', async (req, res) => {
       req.body.contraseña = await bcrypt.hash(req.body.contraseña, 10);
     }
 
-    // Actualizar la empresa en la base de datos
+    // Actualizar el usuario en la base de datos
     const vendedor = await Vendedor.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
     if (!vendedor) {
@@ -99,9 +96,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
 // Eliminar un usuario
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateObjectId, async (req, res) => {
   try {
     const vendedor = await Vendedor.findByIdAndDelete(req.params.id);
     if (!vendedor) {
