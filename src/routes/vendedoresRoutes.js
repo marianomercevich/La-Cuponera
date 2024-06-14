@@ -46,6 +46,9 @@ router.post('/', async (req, res) => {
       descripcion: req.body.descripcion,
       email: req.body.email,
       contraseña: hashedPassword,
+
+      segundoRegistro: req.body.segundoRegistro,
+      
       registroFecha: req.body.registroFecha, 
       estadoVerificacion: req.body.estadoVerificacion,
       redesSociales: req.body.redesSociales,

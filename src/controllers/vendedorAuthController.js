@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Vendedor from '../models/Vendedores.js';
+import { enviarCorreoRegistro } from '../nodemailer/mailer.js';
 
 // Función para manejar el login de usuarios
 export const loginVendedor = async (req, res) => {
@@ -41,7 +42,8 @@ export const registerVendedor = async (req, res) => {
         paginaWeb, 
         horariosTiendaFisica, 
         representanteLegal, 
-        Nit, 
+        Nit,  
+        segundoRegistro,
         categorias} = req.body;
 
     try {
@@ -67,12 +69,19 @@ export const registerVendedor = async (req, res) => {
           horariosTiendaFisica, 
           representanteLegal, 
           Nit, 
+          segundoRegistro,
           categorias
 
         });
 
         // Guardar el nuevo usuario en la base de datos
         await newVendedor.save();
+        
+        // Enviar correo de registro
+        await enviarCorreoRegistro({
+          full_name: nombreTienda,
+          email: email,
+        });
 
         // Generar un token de autenticación
         const token = jwt.sign({ vendedorId: newVendedor._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
@@ -84,4 +93,3 @@ export const registerVendedor = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
-/* falta la logica de login y persistencia de datos de login */
