@@ -5,6 +5,15 @@ import Vendedor from '../models/Vendedores.js';
 
 const router = express.Router();
 
+// Middleware para validar ObjectId
+const validateObjectId = (req, res, next) => {
+  const { id } = req.params;
+  if (id.length !== 24) { // Longitud esperada de ObjectId
+    return res.status(400).send('ID inválido');
+  }
+  next();
+};
+
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
   try {
