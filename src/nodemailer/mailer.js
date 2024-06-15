@@ -35,15 +35,58 @@ const mailGenerator = new Mailgen(configuracionMailGenerator);
 export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   const transporter = crearTransporter();
 
-  // Lee el archivo CSS
-  const cssPath = '/src/nodemailer/css.css';
-  let cssFile;
-  try {
-    cssFile = fs.readFileSync(cssPath, 'utf8');
-  } catch (error) {
-    console.error(`Error al leer el archivo CSS: ${error.message}`);
-    throw error;
+
+  const cssContent = `
+  .email-container {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(140deg, #0088ff 50%, #f9ec00 50%);
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
   }
+  .logo {
+      display: flex;
+      justify-content: flex-start;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+  }
+  .email-header {
+      text-align: center;
+      padding-bottom: 20px;
+  }
+  .email-body {
+      padding: 20px;
+      border-radius: 10px;
+  }
+  .email-body h2 {
+      font-size: 24px;
+      font-weight: 700;
+  }
+  .email-body p {
+      font-size: 16px;
+      font-weight: 400;
+  }
+  .email-footer {
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+  }
+
+  @media only screen and (max-width: 600px) {
+      .email-body h2 {
+          font-size: 20px;
+      }
+      .email-body p {
+          font-size: 14px;
+      }
+      .logo {
+          max-width: 200px;
+      }
+  }
+`;
 
   const contenidoHTML = `
     <!DOCTYPE html>
