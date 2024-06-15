@@ -36,7 +36,7 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   const transporter = crearTransporter();
 
   // Lee el archivo CSS
-  const cssPath = './src/nodemailer/css.css';
+  const cssPath = '/src/nodemailer/css.css';
   let cssFile;
   try {
     cssFile = fs.readFileSync(cssPath, 'utf8');
