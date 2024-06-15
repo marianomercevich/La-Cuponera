@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Vendedor from '../models/Vendedores.js';
-import { enviarCorreoRegistro } from '../nodemailer/mailer.js';
+import { enviarCorreoRegistro, generarTokenValidacion } from '../nodemailer/mailer.js';
 
 // Función para manejar el login de usuarios
 export const loginVendedor = async (req, res) => {
@@ -29,7 +29,8 @@ export const loginVendedor = async (req, res) => {
 
 // Función para manejar el registro de usuarios
 export const registerVendedor = async (req, res) => {
-    const {           id,
+    const {
+        id,
         nombreTienda,
         dirTiendaFisica,
         telefono,
@@ -44,7 +45,8 @@ export const registerVendedor = async (req, res) => {
         representanteLegal, 
         Nit,  
         segundoRegistro,
-        categorias} = req.body;
+        categorias
+    } = req.body;
 
     try {
         // Verificar si el email ya está en uso
@@ -55,33 +57,35 @@ export const registerVendedor = async (req, res) => {
 
         // Crear un nuevo usuario
         const newVendedor = new Vendedor({
-          id,
-          nombreTienda,
-          dirTiendaFisica,
-          telefono,
-          descripcion,
-          email,
-          contraseña: bcrypt.hashSync(contraseña, 10),
-          registroFecha,
-          estadoVerificacion, 
-          redesSociales,
-          paginaWeb, 
-          horariosTiendaFisica, 
-          representanteLegal, 
-          Nit, 
-          segundoRegistro,
-          categorias
-
+            id,
+            nombreTienda,
+            dirTiendaFisica,
+            telefono,
+            descripcion,
+            email,
+            contraseña: bcrypt.hashSync(contraseña, 10),
+            registroFecha,
+            estadoVerificacion, 
+            redesSociales,
+            paginaWeb, 
+            horariosTiendaFisica, 
+            representanteLegal, 
+            Nit, 
+            segundoRegistro,
+            categorias
         });
 
         // Guardar el nuevo usuario en la base de datos
         await newVendedor.save();
-        
+
+        // Generar el token de validación
+        const tokenValidacion = generarTokenValidacion();
+
         // Enviar correo de registro
         await enviarCorreoRegistro({
-          full_name: nombreTienda,
-          email: email,
-        });
+            full_name: nombreTienda,
+            email: email
+        }, tokenValidacion);
 
         // Generar un token de autenticación
         const token = jwt.sign({ vendedorId: newVendedor._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
