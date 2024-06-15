@@ -1,6 +1,10 @@
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables from .env file
 
 // Función para generar un token de validación simple
 const generarTokenValidacion = () => {
@@ -14,8 +18,8 @@ const configuracionTransporter = {
   port: 465,
   secure: true,
   auth: {
-    user: "digital.lacuponera@gmail.com", /* "maritodev81@gmail.com" */
-    pass: "pxgr bkzg offx gzzr",  /* "kwkt eiyc sdcc biuh" */ 
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 };
 
@@ -34,7 +38,6 @@ const mailGenerator = new Mailgen(configuracionMailGenerator);
 // Función para enviar correo de registro
 export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   const transporter = crearTransporter();
-
 
   const cssContent = `
   .email-container {
@@ -86,13 +89,25 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
           max-width: 200px;
       }
   }
+
+  @media only screen and (max-width: 400px) {
+      .email-body h2 {
+          font-size: 18px;
+      }
+      .email-body p {
+          font-size: 12px;
+      }
+      .email-container {
+          padding: 10px;
+      }
+  }
 `;
 
   const contenidoHTML = `
     <!DOCTYPE html>
     <html>
       <head>
-        <style>${cssFile}</style>
+        <style>${cssContent}</style>
       </head>
       <body>
         <div class="email-container">
@@ -110,15 +125,15 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   `;
 
   const mensaje = {
-    from: "digital.lacuponera@gmail.com", 
+    from: "digital.lacuponera@gmail.com",
     to: usuarioEmail.email,
     subject: "¡Bienvenido a La Cuponera!",
     html: contenidoHTML,
     attachments: [
       {
         filename: 'Logo.png',
-        path: './public/img/Logo.png',
-        cid: 'logo' 
+        path: path.join(__dirname, 'public/img/Logo.png'),
+        cid: 'logo'
       }
     ]
   };
@@ -132,7 +147,6 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     throw error;
   }
 };
-
 
 /* export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink) => {
   const transporter = crearTransporter();
