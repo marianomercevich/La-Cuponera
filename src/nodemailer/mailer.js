@@ -1,31 +1,31 @@
-import nodemailer from 'nodemailer';
-import Mailgen from 'mailgen';
-import fs from 'fs';
+import nodemailer from "nodemailer";
+import Mailgen from "mailgen";
+import fs from "fs";
 
 // Función para generar un token de validación simple
-export const generarTokenValidacion = () => {
+const generarTokenValidacion = () => {
   const timestamp = Date.now().toString();
   const token = timestamp.substring(timestamp.length - 6);
   return token;
 };
 
 const configuracionTransporter = {
-  host: 'smtp.gmail.com',
+  host: "smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {
-    user: 'digital.lacuponera@gmail.com',
-    pass: 'pxgr bkzg offx gzzr',
+    user: "digital.lacuponera@gmail.com", /* "maritodev81@gmail.com" */
+    pass: "pxgr bkzg offx gzzr",  /* "kwkt eiyc sdcc biuh" */ 
   },
 };
 
 const crearTransporter = () => nodemailer.createTransport(configuracionTransporter);
 
 const configuracionMailGenerator = {
-  theme: 'default',
+  theme: "default",
   product: {
-    name: 'La Cuponera',
-    link: 'https://lacuponera.app/',
+    name: "La Cuponera",
+    link: "https://lacuponera.app/",
   },
 };
 
@@ -35,7 +35,7 @@ const mailGenerator = new Mailgen(configuracionMailGenerator);
 export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   const transporter = crearTransporter();
 
-  // Lee el archivo CSS (si es necesario)
+  // Lee el archivo CSS
   const cssPath = './src/nodemailer/css.css';
   let cssFile;
   try {
@@ -45,7 +45,6 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     throw error;
   }
 
-  // Construye el contenido HTML del correo
   const contenidoHTML = `
     <!DOCTYPE html>
     <html>
@@ -67,24 +66,23 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     </html>
   `;
 
-  // Configura el mensaje de correo
   const mensaje = {
-    from: 'digital.lacuponera@gmail.com',
+    from: "digital.lacuponera@gmail.com", 
     to: usuarioEmail.email,
-    subject: '¡Bienvenido a La Cuponera!',
+    subject: "¡Bienvenido a La Cuponera!",
     html: contenidoHTML,
     attachments: [
       {
         filename: 'Logo.png',
         path: './public/img/Logo.png',
-        cid: 'logo',
-      },
-    ],
+        cid: 'logo' 
+      }
+    ]
   };
 
   try {
     const email = await transporter.sendMail(mensaje);
-    console.log('Correo enviado:', email.messageId);
+    console.log("Correo enviado:", email.messageId);
     return email;
   } catch (error) {
     console.error(`Error enviando correo de registro a ${usuarioEmail.email}: ${error.message}`);
