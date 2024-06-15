@@ -1,10 +1,6 @@
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 import fs from "fs";
-import path from "path";
-import dotenv from "dotenv";
-
-dotenv.config(); // Load environment variables from .env file
 
 // Función para generar un token de validación simple
 const generarTokenValidacion = () => {
@@ -18,8 +14,8 @@ const configuracionTransporter = {
   port: 465,
   secure: true,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: "digital.lacuponera@gmail.com", /* "maritodev81@gmail.com" */
+    pass: "pxgr bkzg offx gzzr",  /* "kwkt eiyc sdcc biuh" */ 
   },
 };
 
@@ -39,69 +35,55 @@ const mailGenerator = new Mailgen(configuracionMailGenerator);
 export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   const transporter = crearTransporter();
 
-  const cssContent = `
+ const cssContent = `
   .email-container {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(140deg, #0088ff 50%, #f9ec00 50%);
-      padding: 20px;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 700px;
-      margin: 0 auto;
-  }
-  .logo {
-      display: flex;
-      justify-content: flex-start;
-      width: 100%;
-      max-width: 300px;
-      height: auto;
-  }
-  .email-header {
-      text-align: center;
-      padding-bottom: 20px;
-  }
-  .email-body {
-      padding: 20px;
-      border-radius: 10px;
-  }
-  .email-body h2 {
-      font-size: 24px;
-      font-weight: 700;
-  }
-  .email-body p {
-      font-size: 16px;
-      font-weight: 400;
-  }
-  .email-footer {
-      text-align: center;
-      font-size: 12px;
-      color: #777;
-  }
+    font-family: Arial, sans-serif;
+    background: linear-gradient(140deg, #0088ff 50%, #f9ec00 50%);
+    padding: 20px;
+    border-radius: 10px;
+    width: 700px;
+    margin: 0 auto;
+}
+.logo{
+    display: flex;
+    justify-content: flex-start;
+    width: 300px;
+    height: 75px;
+}
+.email-header {
+    text-align: center;
+    padding-bottom: 20px;
+}
 
-  @media only screen and (max-width: 600px) {
-      .email-body h2 {
-          font-size: 20px;
-      }
-      .email-body p {
-          font-size: 14px;
-      }
-      .logo {
-          max-width: 200px;
-      }
-  }
+.email-body {
+    padding: 20px;
+    border-radius: 10px;
+}
+.email-body h2{
+    font-size: 30px;
+    font-weight: 700;
+}
+.email-body p{
+    font-size: 20px;
+    font-weight: 700;
+}
+.email-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+}
+@media only screen and (max-width: 400px) {
+    .email-body h2 {
+        font-size: 18px;
+    }
+    .email-body p {
+        font-size: 12px;
+    }
+    .email-container {
+        padding: 10px;
+    }
+}`;
 
-  @media only screen and (max-width: 400px) {
-      .email-body h2 {
-          font-size: 18px;
-      }
-      .email-body p {
-          font-size: 12px;
-      }
-      .email-container {
-          padding: 10px;
-      }
-  }
-`;
 
   const contenidoHTML = `
     <!DOCTYPE html>
@@ -125,15 +107,15 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
   `;
 
   const mensaje = {
-    from: "digital.lacuponera@gmail.com",
+    from: "digital.lacuponera@gmail.com", 
     to: usuarioEmail.email,
     subject: "¡Bienvenido a La Cuponera!",
     html: contenidoHTML,
     attachments: [
       {
         filename: 'Logo.png',
-        path: path.join(__dirname, 'public/img/Logo.png'),
-        cid: 'logo'
+        path: './public/img/Logo.png',
+        cid: 'logo' 
       }
     ]
   };
@@ -147,6 +129,7 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     throw error;
   }
 };
+
 
 /* export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink) => {
   const transporter = crearTransporter();
