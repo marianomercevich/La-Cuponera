@@ -59,7 +59,7 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
           <main class="email-body">
             <h2>¡Hola ${usuarioEmail.full_name}!</h2>
             <p>¡Bienvenido a La Cuponera! Gracias por registrarte en nuestra plataforma.</p>
-            <p>¡Puedes iniciar sesión colocando este token de validación ${tokenValidacion} en la aplicación para empezar a crear tu tienda!</p>
+            <p>¡Puedes iniciar sesión colocando este token de validación (${tokenValidacion}) en la aplicación para empezar a crear tu tienda!</p>
           </main>
         </div>
       </body>
@@ -91,7 +91,7 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
 };
 
 
-export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink) => {
+/* export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink) => {
   const transporter = crearTransporter();
 
   const contenido = {
@@ -128,3 +128,4 @@ export const enviarCorreoRestablecerContraseña = async (usuarioEmail, tokenLink
     throw error;
   }
 };
+ */
