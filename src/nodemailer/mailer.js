@@ -94,7 +94,7 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
       <body>
         <div class="email-container">
           <header class="email-header">
-            <img class="logo" src="cid:logo" alt="La Cuponera Logo"></img>
+
           </header>
           <main class="email-body">
             <h2>¡Hola ${usuarioEmail.full_name}!</h2>
@@ -111,14 +111,16 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     to: usuarioEmail.email,
     subject: "¡Bienvenido a La Cuponera!",
     html: contenidoHTML,
-    attachments: [
+/*     attachments: [
       {
         filename: 'Logo.png',
         path: 'https://github.com/marianomercevich/imagensproyectos/blob/master/Logo.png',
         cid: 'logo' 
       }
-    ] 
+    ]  */
   };
+
+  // <img class="logo" src="cid:logo" alt="La Cuponera Logo"></img>
 
   try {
     const email = await transporter.sendMail(mensaje);
