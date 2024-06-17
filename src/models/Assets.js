@@ -21,8 +21,8 @@ const consultarLogos = async () => {
 const insertarLogo = async (nombre, imagen, descripcion) => {
   try {
     const connection = await getConnection();
-    const query = 'INSERT INTO logo (nombre, imagen, descripcion) VALUES (?, ?, ?)';
-    const [result] = await connection.query(query, [nombre, imagen, descripcion]);
+    const query = 'INSERT INTO logo (nombre, imagen, descripcion, id_vendedor) VALUES (?, ?, ?)';
+    const [result] = await connection.query(query, [nombre, imagen, descripcion, id_vendedor]);
     connection.release();
     return result.insertId;
   } catch (error) {
@@ -32,11 +32,11 @@ const insertarLogo = async (nombre, imagen, descripcion) => {
 };
 
 // Actualizar un logo existente
-const actualizarLogo = async (idLogo, nombre, imagen, descripcion) => {
+const actualizarLogo = async (id, nombre, imagen, descripcion,id_vendedor) => {
   try {
     const connection = await getConnection();
-    const query = 'UPDATE logo SET nombre = ?, imagen = ?, descripcion = ? WHERE id = ?';
-    const [result] = await connection.query(query, [nombre, imagen, descripcion, idLogo]);
+    const query = 'UPDATE logo SET nombre = ?, imagen = ?, descripcion = ?, id_vendedor = ?, WHERE id = ?';
+    const [result] = await connection.query(query, [nombre, imagen, descripcion, id, id_vendedor]);
     connection.release();
     return result.affectedRows > 0;
   } catch (error) {
@@ -46,7 +46,7 @@ const actualizarLogo = async (idLogo, nombre, imagen, descripcion) => {
 };
 
 // Eliminar un logo existente
-const eliminarLogo = async (idLogo) => {
+const eliminarLogo = async (id) => {
   try {
     const connection = await getConnection();
     const query = 'DELETE FROM logo WHERE id = ?';

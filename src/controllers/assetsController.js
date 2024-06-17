@@ -1,11 +1,11 @@
+import { consultarLogos, insertarLogo, actualizarLogo, eliminarLogo } from '../models/Logo.js';
+import { consultarPortadas, insertarPortada, actualizarPortada, eliminarPortada } from '../models/Portada.js';
 
-import { consultarAssets, insertarAsset, actualizarAsset, eliminarAsset } from '../models/Assets.js';
-
-// Obtener todos los activos
-const obtenerAssets = (req, res) => {
-  consultarAssets((error, results) => {
+// Obtener todos los logos
+const obtenerLogos = (req, res) => {
+  consultarLogos((error, results) => {
     if (error) {
-      console.error('Error al obtener activos:', error);
+      console.error('Error al obtener logos:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     } else {
       res.status(200).json(results);
@@ -13,18 +13,18 @@ const obtenerAssets = (req, res) => {
   });
 };
 
-// Subir un nuevo activo
-const subirAsset = (req, res) => {
-  const nuevoAsset = req.body;
+// Subir un nuevo logo
+const subirLogo = (req, res) => {
+  const nuevoLogo = req.body;
 
   // Validar que los datos obligatorios estén presentes
-  if (!nuevoAsset.nombre || !nuevoAsset.tipo) {
-    return res.status(400).json({ error: 'Debe proporcionar nombre y tipo para el activo' });
+  if (!nuevoLogo.nombre || !nuevoLogo.imagen || !nuevoLogo.descripcion || !nuevoLogo.id_vendedor) {
+    return res.status(400).json({ error: 'Debe proporcionar nombre, imagen, descripcion y id_vendedor para el logo' });
   }
 
-  insertarAsset(nuevoAsset, (error, results) => {
+  insertarLogo(nuevoLogo, (error, results) => {
     if (error) {
-      console.error('Error al subir activo:', error);
+      console.error('Error al subir logo:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     } else {
       res.status(201).json(results);
@@ -32,19 +32,19 @@ const subirAsset = (req, res) => {
   });
 };
 
-// Actualizar un activo existente
-const cambiarAsset = (req, res) => {
-  const idAsset = req.params.id;
+// Actualizar un logo existente
+const cambiarLogo = (req, res) => {
+  const idLogo = req.params.id;
   const datosActualizados = req.body;
 
   // Validar que los datos obligatorios estén presentes para la actualización
-  if (!datosActualizados.nombre && !datosActualizados.tipo) {
-    return res.status(400).json({ error: 'Debe proporcionar nombre o tipo para actualizar el activo' });
+  if (!datosActualizados.nombre && !datosActualizados.imagen && !datosActualizados.descripcion && !datosActualizados.id_vendedor) {
+    return res.status(400).json({ error: 'Debe proporcionar nombre, imagen, descripcion o id_vendedor para actualizar el logo' });
   }
 
-  actualizarAsset(idAsset, datosActualizados, (error, results) => {
+  actualizarLogo(idLogo, datosActualizados, (error, results) => {
     if (error) {
-      console.error('Error al actualizar activo:', error);
+      console.error('Error al actualizar logo:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     } else {
       res.status(200).json(results);
@@ -52,13 +52,13 @@ const cambiarAsset = (req, res) => {
   });
 };
 
-// Eliminar un activo existente
-const sacarAsset = (req, res) => {
-  const idAsset = req.params.id;
+// Eliminar un logo existente
+const sacarLogo = (req, res) => {
+  const idLogo = req.params.id;
 
-  eliminarAsset(idAsset, (error, results) => {
+  eliminarLogo(idLogo, (error, results) => {
     if (error) {
-      console.error('Error al eliminar activo:', error);
+      console.error('Error al eliminar logo:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     } else {
       res.status(200).json(results);
@@ -66,4 +66,69 @@ const sacarAsset = (req, res) => {
   });
 };
 
-export { obtenerAssets, subirAsset, cambiarAsset, sacarAsset };
+// Obtener todas las portadas
+const obtenerPortadas = (req, res) => {
+  consultarPortadas((error, results) => {
+    if (error) {
+      console.error('Error al obtener portadas:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+};
+
+// Subir una nueva portada
+const subirPortada = (req, res) => {
+  const nuevaPortada = req.body;
+
+  // Validar que los datos obligatorios estén presentes
+  if (!nuevaPortada.nombre || !nuevaPortada.imagen || !nuevaPortada.descripcion || !nuevaPortada.id_vendedor) {
+    return res.status(400).json({ error: 'Debe proporcionar nombre, imagen, descripcion y id_vendedor para la portada' });
+  }
+
+  insertarPortada(nuevaPortada, (error, results) => {
+    if (error) {
+      console.error('Error al subir portada:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    } else {
+      res.status(201).json(results);
+    }
+  });
+};
+
+// Actualizar una portada existente
+const cambiarPortada = (req, res) => {
+  const idPortada = req.params.id;
+  const datosActualizados = req.body;
+
+  // Validar que los datos obligatorios estén presentes para la actualización
+  if (!datosActualizados.nombre && !datosActualizados.imagen && !datosActualizados.descripcion && !datosActualizados.id_vendedor) {
+    return res.status(400).json({ error: 'Debe proporcionar nombre, imagen, descripcion o id_vendedor para actualizar la portada' });
+  }
+
+  actualizarPortada(idPortada, datosActualizados, (error, results) => {
+    if (error) {
+      console.error('Error al actualizar portada:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+};
+
+// Eliminar una portada existente
+const sacarPortada = (req, res) => {
+  const idPortada = req.params.id;
+
+  eliminarPortada(idPortada, (error, results) => {
+    if (error) {
+      console.error('Error al eliminar portada:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+};
+
+export { obtenerLogos, subirLogo, cambiarLogo, sacarLogo, obtenerPortadas, subirPortada, cambiarPortada, sacarPortada };
