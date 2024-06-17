@@ -111,13 +111,13 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     to: usuarioEmail.email,
     subject: "¡Bienvenido a La Cuponera!",
     html: contenidoHTML,
-/*     attachments: [
+    attachments: [
       {
         filename: 'Logo.png',
-        path: 'https://github.com/marianomercevich/imagensproyectos/blob/master/Logo.png',
+        path: 'https://srv451-files.hstgr.io/04120694833834dd/files/public_html/assets/Logo.png',
         cid: 'logo' 
       }
-    ]  */
+    ]  
   };
 
   // <img class="logo" src="cid:logo" alt="La Cuponera Logo"></img>
