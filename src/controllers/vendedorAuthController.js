@@ -42,6 +42,7 @@ export const registerVendedor = async (req, res) => {
         paginaWeb, 
         horariosTiendaFisica, 
         representanteLegal, 
+        tokenValidacion,
         Nit,  
         segundoRegistro,
         categorias} = req.body;
@@ -68,6 +69,7 @@ export const registerVendedor = async (req, res) => {
           paginaWeb, 
           horariosTiendaFisica, 
           representanteLegal, 
+          tokenValidacion,
           Nit, 
           segundoRegistro,
           categorias

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { type } from 'os';
 import path from 'path';
 
 // Definir el esquema del usuario
@@ -13,6 +14,8 @@ const vendedorSchema = new mongoose.Schema({
   registroFecha: {type: Date, default: Date.now,},
   
   segundoRegistro: {type: Boolean, default: false },
+
+  tokenValidacion: {type: Number},
     
   estadoVerificacion: {type: String, enum: ['Pendiente', 'Aprobada', 'Desaprobada'], required: false, default: 'Pendiente',},
   redesSociales: { type: String, required: false }, 
