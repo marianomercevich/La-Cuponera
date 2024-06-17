@@ -29,7 +29,8 @@ export const loginVendedor = async (req, res) => {
 
 // Función para manejar el registro de usuarios
 export const registerVendedor = async (req, res) => {
-    const {           id,
+    const {           
+        id,
         nombreTienda,
         dirTiendaFisica,
         telefono,

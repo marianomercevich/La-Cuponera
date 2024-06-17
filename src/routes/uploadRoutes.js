@@ -27,29 +27,6 @@ const pool = mysql.createPool({
   port: 3306
 });
 
-
-// Ruta para cargar una imagen de portada
-router.post('/:id/portada', upload.single('imagen'), async (req, res) => {
-  try {
-    const id_vendedor = req.params.id;
-    const imagen = req.file.buffer; // Contenido de la imagen como buffer
-    const nombre = req.file.originalname;
-    const descripcion = req.body.descripcion || '';
-
-    const connection = await pool.getConnection();
-
-    const query = 'INSERT INTO Portada (nombre, imagen, descripcion) VALUES (?, ?, ?)';
-    const [result] = await connection.execute(query, [nombre, imagen, descripcion]);
-
-    connection.release();
-
-    res.status(200).json({ id: result.insertId, nombre, descripcion });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Ocurrió un error al guardar la imagen en la base de datos.' });
-  }
-});
-
 // Ruta para cargar un logo
 router.post('/:id/logo', upload.single('imagen'), async (req, res) => {
   try {
@@ -68,7 +45,31 @@ router.post('/:id/logo', upload.single('imagen'), async (req, res) => {
     res.status(200).json({ id: result.insertId, nombre, descripcion });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Ocurrió un error al guardar la imagen en la base de datos.' });
+    res.status(500).json({ error: 'Ocurrió un error al guardar el logo en la base de datos.' });
   }
 });
+
+// Ruta para cargar una portada
+router.post('/:id/portada', upload.single('imagen'), async (req, res) => {
+  try {
+    const id_vendedor = req.params.id;
+    const imagen = req.file.buffer; // Contenido de la imagen como buffer
+    const nombre = req.file.originalname;
+    const descripcion = req.body.descripcion || '';
+
+    const connection = await pool.getConnection();
+
+    const query = 'INSERT INTO Portada (nombre, imagen, descripcion, id_vendedor) VALUES (?, ?, ?, ?)';
+    const [result] = await connection.execute(query, [nombre, imagen, descripcion, id_vendedor]);
+
+    connection.release();
+
+    res.status(200).json({ id: result.insertId, nombre, descripcion });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ocurrió un error al guardar la portada en la base de datos.' });
+  }
+});
+
 export default router;
+
