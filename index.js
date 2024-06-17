@@ -4,10 +4,11 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import vendedorRoutes from './src/routes/vendedoresRoutes.js';
-import uploadRoutes from './src/routes/uploadRotes.js';
+import uploadRoutes from './src/routes/uploadRoutes.js';
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 import fs from 'fs';
 import { conexion_App,  } from './src/config/database.js';
+
 
 // Configuración de Express
 const app = express();
