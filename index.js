@@ -7,7 +7,7 @@ import vendedorRoutes from './src/routes/vendedoresRoutes.js';
 import uploadRoutes from './src/routes/uploadRotes.js';
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 import fs from 'fs';
-/* import mysql from 'mysql'; */
+import { conexion_App,  } from './src/config/database.js';
 
 // Configuración de Express
 const app = express();
@@ -21,38 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/public', express.static('public'));
 
-/* // Conexión a MySQL
-const conexion_App = mysql.createConnection({
-  host: 'srv451.hstgr.io',
-  database: 'u244509176_LaCuponeraApp',
-  user: 'u244509176_LaCuponeraApp',
-  password: 'LaCuponeraApp01',
-});
 
-const conexion_Digital = mysql.createConnection({
-  host: 'srv451.hstgr.io',
-  database: 'u244509176_AlE3i',
-  user: 'u244509176_GGEuw',
-  password: 'LaCuponeraDigital01',
-});
-
-conexion_App.connect(function(error) {
-  if (error) {
-    throw error;
-  } else {
-    console.log('CONEXIÓN A MYSQL_APP EXITOSA');
-  }
-});
-conexion_App.end();
-
-conexion_Digital.connect(function(error) {
-  if (error) {
-    throw error;
-  } else {
-    console.log('CONEXIÓN A MYSQL_DIGITAL EXITOSA');
-  }
-});
-conexion_Digital.end(); */
 
 // Conexión a MongoDB
 mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
@@ -80,6 +49,17 @@ if (swaggerDocument) {
 } else {
   console.error('No se pudo cargar el archivo JSON de Swagger.');
 }
+
+// Mensaje de confirmación de conexión
+conexion_App.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error al conectar con la base de datos de la aplicación:', err.message);
+  } else {
+    console.log('Conexión establecida con la base de datos de la aplicación');
+    connection.release();
+  } 
+});
+
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
