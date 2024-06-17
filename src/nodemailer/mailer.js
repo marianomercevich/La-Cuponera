@@ -112,11 +112,11 @@ export const enviarCorreoRegistro = async (usuarioEmail, tokenValidacion) => {
     subject: "¡Bienvenido a La Cuponera!",
     html: contenidoHTML,
     attachments: [
-      {
+/*       {
         filename: 'Logo.png',
         path: 'https://srv451-files.hstgr.io/04120694833834dd/files/public_html/assets/Logo.png',
         cid: 'logo' 
-      }
+      } */
     ]  
   };
 
