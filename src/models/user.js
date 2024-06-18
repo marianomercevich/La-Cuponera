@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   registroFecha: {type: String, required: false },
   estadoVerificacion: { type: String, required: false, enum: ['Pendiente', 'Aprobada', 'Desaprobada'] }, 
+
+  tokenValidacion: {type: Number},
 });
 
 // Exportar el modelo de usuario basado en el esquema
