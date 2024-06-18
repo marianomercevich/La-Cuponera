@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+import { enviarCorreoRegistro } from '../nodemailer/mailer.js';
 
 // Función para manejar el login de usuarios
 export const loginUser = async (req, res) => {
@@ -30,7 +31,7 @@ export const registerUser = async (req, res) => {
     const { 
         nombre,
         apellido,
-        email, password } = req.body;
+        email, password, tokenValidacion, } = req.body;
         
         try {
             // Verificar si el email ya está en uso
@@ -39,18 +40,28 @@ export const registerUser = async (req, res) => {
                 return res.status(400).json({ message: 'El email ya está registrado' });
         }
         
+         // Generar el token de validación
+         const tokenValidacion = Math.floor(100000 + Math.random() * 900000);
+
         // Crear un nuevo usuario
         const newUser = new User({
 
           nombre,
           apellido,
           email,
+          tokenValidacion,
           password: bcrypt.hashSync(password, 10),
 
         });
         
         // Guardar el nuevo usuario en la base de datos
         await newUser.save();
+
+            // Enviar correo de registro
+            await enviarCorreoRegistro({
+                full_name: nombreTienda,
+                email: email
+            }, tokenValidacion);
         
         // Generar un token de autenticación
         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
