@@ -42,12 +42,12 @@ export const registerVendedor = async (req, res) => {
         redesSociales,
         paginaWeb, 
         horariosTiendaFisica, 
-        representanteLegal, 
-        tokenValidacion,
+        representanteLegal,
         Nit,  
         segundoRegistro,
-        categorias} = req.body;
-
+        categorias
+    } = req.body;
+        
     try {
         // Verificar si el email ya está en uso
         const existingVendedor = await Vendedor.findOne({ email });
@@ -55,26 +55,28 @@ export const registerVendedor = async (req, res) => {
             return res.status(400).json({ message: 'El email ya está registrado' });
         }
 
+        // Generar el token de validación
+        const tokenValidacion = Math.floor(100000 + Math.random() * 900000);
+
         // Crear un nuevo usuario
         const newVendedor = new Vendedor({
-          id,
-          nombreTienda,
-          dirTiendaFisica,
-          telefono,
-          descripcion,
-          email,
-          contraseña: bcrypt.hashSync(contraseña, 10),
-          registroFecha,
-          estadoVerificacion, 
-          redesSociales,
-          paginaWeb, 
-          horariosTiendaFisica, 
-          representanteLegal, 
-          tokenValidacion,
-          Nit, 
-          segundoRegistro,
-          categorias
-
+            id,
+            nombreTienda,
+            dirTiendaFisica,
+            telefono,
+            descripcion,
+            email,
+            contraseña: bcrypt.hashSync(contraseña, 10),
+            registroFecha,
+            estadoVerificacion, 
+            redesSociales,
+            paginaWeb, 
+            horariosTiendaFisica, 
+            representanteLegal,
+            tokenValidacion,
+            Nit, 
+            segundoRegistro,
+            categorias
         });
 
         // Guardar el nuevo usuario en la base de datos
@@ -82,9 +84,9 @@ export const registerVendedor = async (req, res) => {
         
         // Enviar correo de registro
         await enviarCorreoRegistro({
-          full_name: nombreTienda,
-          email: email,
-        });
+            full_name: nombreTienda,
+            email: email
+        }, tokenValidacion);
 
         // Generar un token de autenticación
         const token = jwt.sign({ vendedorId: newVendedor._id }, process.env.JWT_CLIENT_SECRET, { expiresIn: '1h' });
@@ -96,3 +98,4 @@ export const registerVendedor = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
+
