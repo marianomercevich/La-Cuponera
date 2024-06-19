@@ -6,7 +6,7 @@ import {
   actualizarCupon,
   eliminarCupon,
   consultarCuponPorId
-} from '../controllers/assetsController';
+} from '../controllers/assetsController.js';
 
 const router = express.Router();
 
