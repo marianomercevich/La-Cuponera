@@ -4,10 +4,12 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
+import { conexion_App,  } from './src/config/database.js';
 
 
 // Importa las rutas de tu API
 import cuponesRoutes from './src/routes/cuponsRoutes.js';
+import uploadRoutes from './src/routes/uploadRoutes.js';
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 
 // Configuración de Express
@@ -26,20 +28,22 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .then(() => console.log('Conexión a MongoDB establecida'))
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
+
+  const swaggerDocumentPath = 'src/doc/Vendedores.json';
+  let swaggerDocument;
+  try {
+    console.log('Intentando leer el archivo JSON de Swagger...');
+    const rawData = fs.readFileSync(swaggerDocumentPath);
+    swaggerDocument = JSON.parse(rawData);
+    console.log('Archivo JSON de Swagger cargado correctamente:', swaggerDocument);
+  } catch (error) {
+    console.error('Error al cargar el archivo JSON de Swagger:', error);
+  }
+
+
 // Rutas de la API
 app.use('/api/cupones', cuponesRoutes);
-
-const swaggerDocumentPath = './src/doc/cupones.json';
-let swaggerDocument;
-try {
-  console.log('Intentando leer el archivo JSON de Swagger...');
-  const rawData = fs.readFileSync(swaggerDocumentPath);
-  swaggerDocument = JSON.parse(rawData);
-  console.log('Archivo JSON de Swagger cargado correctamente:', swaggerDocument);
-} catch (error) {
-  console.error('Error al cargar el archivo JSON de Swagger:', error);
-}
-
+app.use('/api/upload', uploadRoutes);
 
 // Usar Swagger UI
 if (swaggerDocument) {
@@ -47,6 +51,16 @@ if (swaggerDocument) {
 } else {
   console.error('No se pudo cargar el archivo JSON de Swagger.');
 }
+
+// Mensaje de confirmación de conexión
+conexion_App.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error al conectar con la base de datos de la aplicación:', err.message);
+  } else {
+    console.log('Conexión establecida con la base de datos de la aplicación');
+    connection.release();
+  } 
+});
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
