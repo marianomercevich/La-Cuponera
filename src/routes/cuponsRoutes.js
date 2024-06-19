@@ -1,34 +1,10 @@
 import express from 'express';
 import Coupon from '../models/cupons.js';
-import upload from '../middlewares/multer.js';
+
 
 const router = express.Router();
 
-// Crear un nuevo cupón con imagen
-router.post('/', upload.single('image'), async (req, res) => {
-  try {
-    // Extraer los datos del cupón del cuerpo de la solicitud
-    const { title, description, discount, expirationDate } = req.body;
 
-    // Extraer el nombre de archivo de la imagen cargada
-    const imageUrl = req.file ? req.file.filename : null;
-
-    // Crear un nuevo cupón en la base de datos
-    const newCoupon = new Coupon({
-      title,
-      description,
-      discount,
-      expirationDate,
-      imageUrl: imageUrl // Guardar la URL de la imagen en la base de datos
-    });
-
-    await newCoupon.save();
-    res.status(201).json(newCoupon);
-  } catch (err) {
-    console.error('Error al crear cupón:', err);
-    res.status(500).send('Error interno del servidor');
-  }
-});
 
 // Obtener todos los cupones
 router.get('/', async (req, res) => {

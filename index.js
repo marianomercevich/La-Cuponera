@@ -2,8 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
+/* import swaggerUi from 'swagger-ui-express';
+import fs from 'fs'; */
 import { conexion_App,  } from './src/config/database.js';
 
 
