@@ -17,19 +17,41 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // Obtener un cupón por su ID
 router.get('/:id', async (req, res) => {
   try {
-    const coupon = await Coupon.findById(req.params.id);
-    if (!coupon) {
-      return res.status(404).send('Cupón no encontrado');
+    const id_vendedor = req.params.id;
+
+    // Obtener una conexión del pool de conexiones
+    const connection = await pool.getConnection();
+
+    // Consulta SQL para seleccionar la imagen del cupón por su ID
+    const query = 'SELECT imagen FROM Cupon_img WHERE id_vendedor = ?';
+    const [results] = await connection.execute(query, [id_vendedor]);
+
+    // Liberar la conexión de vuelta al pool
+    connection.release();
+
+    // Verifica si se encontraron resultados
+    if (results.length === 0 || !results[0].imagen) {
+      return res.status(404).send('Imagen del Cupon no encontrada');
     }
-    res.json(coupon);
+
+    // Obtén la imagen binaria desde los resultados
+    const imagenBinaria = results[0].imagen;
+
+    // Establece el tipo de contenido en la respuesta HTTP
+    res.setHeader('Content-Type', 'image/jpeg'); // Ajusta según el tipo de imagen que estás almacenando en MySQL
+
+    // Devuelve la imagen binaria como respuesta
+    res.status(200).send(imagenBinaria);
   } catch (err) {
     console.error('Error al obtener cupón por ID:', err);
     res.status(500).send('Error interno del servidor');
   }
 });
+
 
 // Crear un nuevo cupón
 router.post('/', async (req, res) => {

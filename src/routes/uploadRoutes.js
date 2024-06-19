@@ -45,7 +45,7 @@ router.post('/cupones/:id', upload.single('imagen'), async (req, res) => {
 
     connection.release();
 
-    res.status(200).json({ id_vendedor, nombre, descripcion, imagen });
+    res.status(200).json({ id_vendedor, nombre, descripcion });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ocurrió un error al guardar la imagen del Cupon en la base de datos.' });
@@ -63,11 +63,11 @@ router.put('/cupones/:id', upload.single('imagen'), async (req, res) => {
     const connection = await pool.getConnection();
 
     const query = 'UPDATE Cupon_img SET nombre = ?, imagen = ?, descripcion = ?, id_vendedor = ? WHERE id = ?';
-    const [result] = await connection.execute(query, [nombre, descripcion, id_vendedor, imagen]);
+    const [result] = await connection.execute(query, [nombre, descripcion, id_vendedor]);
 
     connection.release();
 
-    res.status(200).json({ id, nombre, descripcion, imagen });
+    res.status(200).json({ id, nombre, descripcion });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ocurrió un error al actualizar la imagen del Cupon en la base de datos.' });
@@ -75,29 +75,31 @@ router.put('/cupones/:id', upload.single('imagen'), async (req, res) => {
 });
 
 
+
+
+
 // Ruta para obtener un Cupon_img por ID (GET)
 router.get('/cupones/:id', async (req, res) => {
+  const id_vendedor = req.params.id;
+  
   try {
-    const id_vendedor = req.params.id;
-
     const connection = await pool.getConnection();
-
-    const query = 'SELECT id, nombre, descripcion, id_vendedor FROM Cupon_img WHERE id_vendedor = ?';
-    const [results] = await connection.execute(query, [id_vendedor]);
-
-    connection.release();
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'imagen del Cupon no encontrado.' });
+    
+    const [rows] = await connection.query('SELECT imagen FROM Cupon_img WHERE id_vendedor = ?', [id_vendedor]);
+    
+    if (rows.length > 0) {
+      // Devolvemos la imagen como un Buffer
+      res.set('Content-Type', 'image/jpeg'); // Ajusta el tipo MIME según el tipo de imagen que manejes (ej. 'image/jpeg', 'image/png', etc.)
+      res.send(Buffer.from(rows[0].imagen));
+    } else {
+      throw new Error('No se encontró ninguna imagen en la base de datos.');
     }
-
-    const Cupon_img = results[0];
-    res.status(200).json(Cupon_img);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Ocurrió un error al obtener la imagen del Cupon desde la base de datos.' });
+    console.error('Error al obtener la imagen desde MySQL:', error.message);
+    res.status(404).json({ error: 'No se encontró la imagen en la base de datos.' });
   }
 });
+
 
 // Ruta para eliminar la imagen del Cupon por ID (DELETE)
 router.delete('/cupones/:id', async (req, res) => {

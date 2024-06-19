@@ -1,0 +1,56 @@
+router.get('/cupones/:id', async (req, res) => {
+  try {
+    const id_vendedor = req.params.id;
+    const connection = await pool.getConnection();
+
+    // Consulta SQL para obtener la imagen por ID de vendedor
+    const query = 'SELECT id, nombre, descripcion, imagen FROM Cupon_img WHERE id_vendedor = ?';
+    const [results] = await connection.execute(query, [id_vendedor]);
+
+    // Liberar la conexión de vuelta al pool
+    connection.release();
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Imagen del Cupon no encontrada.' });
+    }
+
+    const cupon = results[0];
+
+    // Determinar el tipo MIME de la imagen binaria usando file-type
+    const tipoMIME = await fileType.fromBuffer(cupon.imagen);
+    if (!tipoMIME || !tipoMIME.mime.startsWith('image/')) {
+      return res.status(500).json({ error: 'Tipo de archivo inválido.' });
+    }
+
+    // Establecer el tipo de contenido en la respuesta HTTP
+    res.setHeader('Content-Type', tipoMIME.mime);
+
+    // Devolver la imagen binaria como respuesta
+    res.status(200).send(cupon.imagen);
+
+  } catch (error) {
+    console.error('Error al obtener la imagen del Cupon:', error);
+    res.status(500).json({ error: 'Ocurrió un error al obtener la imagen del Cupon desde la base de datos.' });
+  }
+});
+
+
+
+
+
+const obtenerImagenDesdeMySQL = async () => {
+  const connection = await conectarDB(); // Conectamos a la base de datos
+  try {
+    const [rows] = await connection.query'SELECT imagen FROM Cupon_img WHERE id_vendedor = ?';
+    if (rows.length > 0) {
+      return Buffer.from(rows[0].imagen); // Devolvemos la imagen como un Buffer
+    } else {
+      throw new Error('No se encontró ninguna imagen en la base de datos.');
+    }
+  } catch (error) {
+    console.error('Error al obtener la imagen desde MySQL:', error.message);
+    throw error;
+  } finally {
+    await connection.end(); // Cerramos la conexión después de usarla
+  }
+};
