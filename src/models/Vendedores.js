@@ -29,7 +29,10 @@ const vendedorSchema = new mongoose.Schema({
   logo: {type: String}, 
   seguidores: {type: Array, default: []}, 
   type:{type: String, default: 'vendedor'}, 
-  geolocalizacion:{type: String} 
+   location: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], required: true }
+  }
 
 });
 
