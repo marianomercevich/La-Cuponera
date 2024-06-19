@@ -41,4 +41,3 @@ const conexion_App = mysql.createPool({
 
 
 export { conexion_App };
-

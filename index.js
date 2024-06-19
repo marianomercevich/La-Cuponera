@@ -4,10 +4,11 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import vendedorRoutes from './src/routes/vendedoresRoutes.js';
-import uploadRoutes from './src/routes/uploadRoutes.js';
+import uploadPortadaRoutes from './src/routes/uploadPortadaRoutes.js'
+import uploadLogoRoutes from './src/routes/uploadLogoRoutes.js';
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 import fs from 'fs';
-import { conexion_App,  } from './src/config/database.js';
+import { conexion_App  } from './src/config/database.js';
 
 
 // Configuración de Express
@@ -42,7 +43,8 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
 
 // Rutas de la API
 app.use('/api/vendedores', vendedorRoutes);
-app.use('/api/upload', uploadRoutes);
+app.use('/api/upload', uploadLogoRoutes, uploadPortadaRoutes );
+
 
 // Usar Swagger UI
 if (swaggerDocument) {
