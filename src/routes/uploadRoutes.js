@@ -63,11 +63,11 @@ router.put('/cupones/:id', upload.single('imagen'), async (req, res) => {
     const connection = await pool.getConnection();
 
     const query = 'UPDATE Cupon_img SET nombre = ?, imagen = ?, descripcion = ?, id_vendedor = ? WHERE id = ?';
-    const [result] = await connection.execute(query, [nombre, descripcion, id_vendedor]);
+    const [result] = await connection.execute(query, [nombre, descripcion, id_vendedor, imagen]);
 
     connection.release();
 
-    res.status(200).json({ id, nombre, descripcion });
+    res.status(200).json({ id, nombre, descripcion, imagen });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ocurrió un error al actualizar la imagen del Cupon en la base de datos.' });
