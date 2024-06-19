@@ -46,7 +46,7 @@ router.post('/logos/:id', upload.single('imagen'), async (req, res) => {
 
     connection.release();
 
-    res.status(200).json({ id_vendedor, nombre, descripcion });
+    res.status(200).json({ id_vendedor, nombre, descripcion, imagen });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ocurrió un error al guardar el logo en la base de datos.' });
@@ -64,7 +64,7 @@ router.put('/logos/:id', upload.single('imagen'), async (req, res) => {
     const connection = await pool.getConnection();
 
     const query = 'UPDATE Logo SET nombre = ?, imagen = ?, descripcion = ?, id_vendedor = ? WHERE id = ?';
-    const [result] = await connection.execute(query, [nombre, descripcion, id_vendedor]);
+    const [result] = await connection.execute(query, [nombre, descripcion, id_vendedor, imagen]);
 
     connection.release();
 
