@@ -72,27 +72,25 @@ router.put('/portadas/:id', upload.single('imagen'), async (req, res) => {
 });
 
 
-// Ruta para obtener un portada por ID (GET)
+// Ruta para obtener un logo por ID (GET)
 router.get('/portadas/:id', async (req, res) => {
+  const id_vendedor = req.params.id;
+  
   try {
-    const id_vendedor = req.params.id;
-
     const connection = await pool.getConnection();
-
-    const query = 'SELECT id, nombre, descripcion, id_vendedor FROM Portada WHERE id_vendedor = ?';
-    const [results] = await connection.execute(query, [id_vendedor]);
-
-    connection.release();
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Portada no encontrada.' });
+    
+    const [rows] = await connection.query('SELECT imagen FROM Portada WHERE id_vendedor = ?', [id_vendedor]);
+    
+    if (rows.length > 0) {
+      // Devolvemos la imagen como un Buffer
+      res.set('Content-Type', 'image/jpeg'); // Ajusta el tipo MIME según el tipo de imagen que manejes (ej. 'image/jpeg', 'image/png', etc.)
+      res.send(Buffer.from(rows[0].imagen));
+    } else {
+      throw new Error('No se encontró ninguna imagen en la base de datos.');
     }
-
-    const portada = results[0];
-    res.status(200).json(portada);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Ocurrió un error al obtener la portada desde la base de datos.' });
+    console.error('Error al obtener la imagen desde MySQL:', error.message);
+    res.status(404).json({ error: 'No se encontró la imagen en la base de datos.' });
   }
 });
 

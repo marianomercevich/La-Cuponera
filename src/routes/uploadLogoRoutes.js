@@ -78,25 +78,23 @@ router.put('/logos/:id', upload.single('imagen'), async (req, res) => {
 
 // Ruta para obtener un logo por ID (GET)
 router.get('/logos/:id', async (req, res) => {
+  const id_vendedor = req.params.id;
+  
   try {
-    const id_vendedor = req.params.id;
-
     const connection = await pool.getConnection();
-
-    const query = 'SELECT id, nombre, descripcion, id_vendedor FROM Logo WHERE id_vendedor = ?';
-    const [results] = await connection.execute(query, [id_vendedor]);
-
-    connection.release();
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Logo no encontrado.' });
+    
+    const [rows] = await connection.query('SELECT imagen FROM Logo WHERE id_vendedor = ?', [id_vendedor]);
+    
+    if (rows.length > 0) {
+      // Devolvemos la imagen como un Buffer
+      res.set('Content-Type', 'image/jpeg'); // Ajusta el tipo MIME según el tipo de imagen que manejes (ej. 'image/jpeg', 'image/png', etc.)
+      res.send(Buffer.from(rows[0].imagen));
+    } else {
+      throw new Error('No se encontró ninguna imagen en la base de datos.');
     }
-
-    const logo = results[0];
-    res.status(200).json(logo);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Ocurrió un error al obtener el logo desde la base de datos.' });
+    console.error('Error al obtener la imagen desde MySQL:', error.message);
+    res.status(404).json({ error: 'No se encontró la imagen en la base de datos.' });
   }
 });
 
