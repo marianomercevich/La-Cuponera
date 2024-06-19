@@ -5,7 +5,6 @@ import {
   insertarCupon,
   actualizarCupon,
   eliminarCupon,
-  consultarCuponPorId
 } from '../controllers/assetsController.js';
 
 const router = express.Router();
@@ -26,7 +25,6 @@ const upload = multer({
 
 // Rutas CRUD
 router.get('/', consultarCupon);
-router.get('/:id', consultarCuponPorId);
 router.post('/', upload.single('imagen'), insertarCupon);
 router.put('/:id', upload.single('imagen'), actualizarCupon);
 router.delete('/:id', eliminarCupon);
