@@ -29,7 +29,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 
-  const swaggerDocumentPath = 'src/doc/Vendedores.json';
+/*   const swaggerDocumentPath = 'src/doc/Vendedores.json';
   let swaggerDocument;
   try {
     console.log('Intentando leer el archivo JSON de Swagger...');
@@ -39,18 +39,18 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
   } catch (error) {
     console.error('Error al cargar el archivo JSON de Swagger:', error);
   }
-
+ */
 
 // Rutas de la API
 app.use('/api/cupones', cuponesRoutes);
 app.use('/api/upload', uploadRoutes);
 
-// Usar Swagger UI
+/* // Usar Swagger UI
 if (swaggerDocument) {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } else {
   console.error('No se pudo cargar el archivo JSON de Swagger.');
-}
+} */
 
 // Mensaje de confirmación de conexión
 conexion_App.getConnection((err, connection) => {
