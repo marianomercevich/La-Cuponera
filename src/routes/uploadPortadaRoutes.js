@@ -28,7 +28,7 @@ const pool = mysql.createPool({
 
 
 // Ruta para cargar una portada
-router.post('/portada/:id', upload.single('imagen'), async (req, res) => {
+router.post('/portadas/:id', upload.single('imagen'), async (req, res) => {
   try {
     const id_vendedor = req.params.id;
     const imagen = req.file.buffer; // Contenido de la imagen como buffer
