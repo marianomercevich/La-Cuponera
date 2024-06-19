@@ -45,7 +45,7 @@ router.post('/cupones/:id', upload.single('imagen'), async (req, res) => {
 
     connection.release();
 
-    res.status(200).json({ id_vendedor, nombre, descripcion });
+    res.status(200).json({ id_vendedor, nombre, descripcion, imagen });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ocurrió un error al guardar la imagen del Cupon en la base de datos.' });
