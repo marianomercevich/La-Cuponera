@@ -4,12 +4,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 /* import swaggerUi from 'swagger-ui-express';
 import fs from 'fs'; */
-import { conexion_App,  } from './src/config/database.js';
+import { conexion_App, conexion_Digital } from './src/config/database.js';
 
 
 // Importa las rutas de tu API
 import cuponesRoutes from './src/routes/cuponsRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
+import raitingCuponsRoutes from './src/routes/raitngCuponsRoutes.js'
 import { MONGO_URI, MONGO_DB_NAME_PROD, MONGO_DB_NAME_TEST } from './src/config/config.js';
 
 // Configuración de Express
@@ -44,6 +45,7 @@ mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME_PROD}`)
 // Rutas de la API
 app.use('/api/cupones', cuponesRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api', raitingCuponsRoutes)
 
 /* // Usar Swagger UI
 if (swaggerDocument) {
@@ -60,6 +62,15 @@ conexion_App.getConnection((err, connection) => {
     console.log('Conexión establecida con la base de datos de la aplicación');
     connection.release();
   } 
+});
+
+conexion_Digital.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error al conectar con la base de datos digital:', err.message);
+  } else {
+    console.log('Conexión establecida con la base de datos digital');
+    connection.release();
+  }
 });
 
 // Manejo de rutas no encontradas
