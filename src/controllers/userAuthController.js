@@ -51,6 +51,7 @@ export const registerUser = async (req, res) => {
           email,
           tokenValidacion,
           password: bcrypt.hashSync(password, 10),
+          cart,
 
         });
         
