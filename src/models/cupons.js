@@ -21,7 +21,7 @@ const couponSchema = new Schema({
   createdBy: { type: String }, // Referencia al modelo de empresas creadoras de cupones
   createdAt: { type: Date, default: Date.now },
   imagePath: { type: String }, // Campo para almacenar la ruta de la imagen
-  raiting: {type: Float32Array }
+  raiting: {type: Number}
 });
 
 couponSchema.index({ location: '2dsphere' }); // Índice geoespacial para la ubicación del cupón
