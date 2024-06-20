@@ -10,7 +10,7 @@ export const createCoupon = async (req, res) => {
                 return res.status(400).json({ message: 'Error al subir la imagen' });
             }
 
-            const { title, description, discount, expirationDate, createdBy } = req.body;
+            const { title, description, discount, expirationDate, createdBy, raiting } = req.body;
 
             // Verificar si se proporcionó una imagen en la solicitud
             let imagePath = '';
@@ -25,7 +25,8 @@ export const createCoupon = async (req, res) => {
                 discount,
                 expirationDate,
                 createdBy,
-                imagePath // Guardar el nombre del archivo en el documento del cupón
+                imagePath, 
+                raiting// Guardar el nombre del archivo en el documento del cupón
             });
 
             // Guardar el nuevo cupón en la base de datos
@@ -63,7 +64,8 @@ export const updateCoupon = async (req, res) => {
                 description,
                 discount,
                 expirationDate,
-                imagePath // Guardar la ruta de la nueva imagen en el documento del cupón
+                imagePath, // Guardar la ruta de la nueva imagen en el documento del cupón
+                raiting
             }, { new: true });
 
             if (!updatedCoupon) {
