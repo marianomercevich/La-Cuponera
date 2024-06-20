@@ -30,7 +30,7 @@ const conectarDB = async () => {
 const obtenerImagenDesdeMySQL = async () => {
   const connection = await conectarDB(); // Conectamos a la base de datos
   try {
-    const [rows] = await connection.query('SELECT imagen FROM Logo WHERE id = 34');
+    const [rows] = await connection.query('SELECT imagen FROM Logo WHERE id = 39');
     if (rows.length > 0) {
       return Buffer.from(rows[0].imagen); // Devolvemos la imagen como un Buffer
     } else {
