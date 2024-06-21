@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Vendedor from '../models/Vendedores.js';
 import { enviarCorreoRegistro } from '../nodemailer/mailer.js';
