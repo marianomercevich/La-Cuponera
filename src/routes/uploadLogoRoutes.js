@@ -2,7 +2,6 @@ import express from 'express';
 import multer from 'multer';
 import mysql from 'mysql2/promise';
 
-
 const router = express.Router();
 
 // Configuración de multer para almacenar archivos en memoria
