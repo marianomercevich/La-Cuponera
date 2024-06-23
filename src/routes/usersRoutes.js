@@ -31,7 +31,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Crear un nuevo usuario
-router.post('/', async (req, res) => {
+router.post('/:id', async (req, res) => {
   try {
     // Hashear la contraseña antes de guardarla en la base de datos
     const hashedPassword = await bcrypt.hash(req.body.password, 10);

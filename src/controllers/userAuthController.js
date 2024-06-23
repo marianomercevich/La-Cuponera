@@ -31,7 +31,7 @@ export const registerUser = async (req, res) => {
     const { 
         nombre,
         apellido,
-        email, password, tokenValidacion, } = req.body;
+        email, password, tokenValidacion, cart } = req.body;
         
         try {
             // Verificar si el email ya está en uso
